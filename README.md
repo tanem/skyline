@@ -30,3 +30,7 @@ To run via [PhantomJS](http://phantomjs.org/):
     $ grunt test
 
 That will also generate `./SpecRunner.html`, which can be used to view the tests in the browser.
+
+## Credits
+
+ * [Hummingbird](http://hummingbirdstats.com/), the original inspiration for this component.
