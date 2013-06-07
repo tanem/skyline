@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hits Graph Demo | Realtime Dashboard</title>
+  <style>
+  body {
+    background: #eee;
+  }
+
+  .hits-graph {
+    height: 200px;
+    left: 50%;
+    margin-left: -300px;
+    margin-top: -100px;
+    position: absolute;
+    top: 50%;
+    width: 600px;
+  }
+
+  .hits-graph canvas {
+    left: 0;
+    position: absolute;
+    top: 0;
+  }
+
+  .hits-graph .hits-per-second,
+  .hits-graph .frames-per-second {
+    left: 610px;
+    position: absolute;
+    width: 300px;
+  }
+
+  .hits-graph .frames-per-second {
+    top: 30px;
+  }
+
+  .hits-graph .count {
+    font-size: 22px;
+  }
+
+  .hits-graph .label {
+    font-size: 12px;
+  }
+  </style>
+</head>
+<body>
+  <div class="hits-graph">
+    <canvas class="background"></canvas>
+    <canvas class="history"></canvas>
+    <canvas class="axis"></canvas>
+    <div class="hits-per-second"><span class="count"></span> <span class="label">hits / second</span></div>
+    <div class="frames-per-second"><span class="count"></span> <span class="label">frames / second</span></div>
+  </div>
+  <script src="../src/lib/jquery.js"></script>
+  <script src="../src/lib/underscore.js"></script>
+  <script src="../src/lib/modernizr.js"></script>
+  <script src="../src/hits-graph.js"></script>
+  <script>
+  (function(){
+
+    var $hitsGraph = $('.hits-graph');
+    var hitsGraph = new HitsGraph({
+      $el: $hitsGraph,
+      height: $hitsGraph.height(),
+      width: $hitsGraph.width()
+    });
+
+    hitsGraph.start();
+    
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function addHits(){
+      hitsGraph.addHit();
+      window.setTimeout(function(){
+        Modernizr.prefixed('requestAnimationFrame', window)(addHits);
+      }, getRandomInt(0, 500));
+    };
+
+    addHits();
+
+  }());
+  </script>
+</body>
+</html>
