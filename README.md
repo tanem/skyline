@@ -29,4 +29,4 @@ To run via [PhantomJS](http://phantomjs.org/):
 
     $ grunt test
 
-That will also generate `SpecRunner.html`, which can be used to view the tests in the browser.
+That will also generate `./SpecRunner.html`, which can be used to view the tests in the browser.
