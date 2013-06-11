@@ -6,6 +6,7 @@
   <style>
   body {
     background: #eee;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   .hits-graph {
@@ -81,7 +82,7 @@
       hitsGraph.addHit();
       window.setTimeout(function(){
         raf(addHits);
-      }, getRandomInt(0, 500));
+      }, getRandomInt(0, 50));
     };
 
     addHits();

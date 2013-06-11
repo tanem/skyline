@@ -4,6 +4,8 @@
 
 The hits graph component of a realtime dashboard application.
 
+[![]](https://raw.github.com/tanem/realtime-dashboard-hits-graph/master/screenshot.png)
+
 ## Dependencies
 
  * [Node.js](http://nodejs.org/)
