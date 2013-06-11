@@ -20,7 +20,7 @@ module.exports = function(grunt){
         src: '<%= jshint.src %>',
         options: {
           specs: '<%= jshint.test %>',
-          vendor: 'src/lib/*.js',
+          helpers: 'test/helper.js',
           keepRunner: true,
           outfile: 'SpecRunner.html'
         }

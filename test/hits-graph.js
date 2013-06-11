@@ -1,7 +1,7 @@
 describe('Hits graph', function(){
 
   var hitsGraph,
-    $el,
+    rootEl,
     backgroundCanvas,
     historyCanvas;
 
@@ -18,41 +18,42 @@ describe('Hits graph', function(){
       }
     });
 
-    $el = $('' +
-      '<div class="hits-graph" style="width:600px;height:200px;">' +
-        '<canvas class="background"></canvas>' +
-        '<canvas class="history"></canvas>' +
-        '<div class="hits-per-second"><span class="count"></span> <span class="label">hits / second</span></div>' +
-        '<div class="frames-per-second"><span class="count"></span> <span class="label">frames / second</span></div>' +
-      '</div>'
-    );
+    // http://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro
+    var dummyDiv = document.createElement('div');
+    dummyDiv.innerHTML = '<div class="hg" style="width:600px;height:200px;">' +
+      '<canvas class="hg-background"></canvas>' +
+      '<canvas class="hg-history"></canvas>' +
+      '<div class="hg-hps"><span class="hg-hps-count"></span> <span class="hg-hps-label">hits / second</span></div>' +
+      '<div class="hg-fps"><span class="hg-fps-count"></span> <span class="hg-fps-label">frames / second</span></div>' +
+    '</div>';
+    rootEl = dummyDiv.childNodes[0];
 
-    backgroundCanvas = $el.find('.background').get(0);
-    historyCanvas = $el.find('.history').get(0);
+    backgroundCanvas = rootEl.getElementsByClassName('hg-background')[0];
+    historyCanvas = rootEl.getElementsByClassName('hg-history')[0];
 
     hitsGraph = new HitsGraph({
-      $el: $el,
-      height: $el.height(),
-      width: $el.width()
+      rootEl: rootEl,
+      height: 200,
+      width: 600
     });
 
   });
 
   describe('Instantiation:', function(){
 
-    it('Should throw an error if $el is not a jQuery object', function(){
+    it('Should throw an error if rootEl is not defined', function(){
       expect(function(){
         hitsGraph = new HitsGraph({
           height: 100,
           width: 100
         });
-      }).toThrow('$el must be a jQuery object');
+      }).toThrow('rootEl must be defined');
     });
 
     it('Should throw an error if height is not a number', function(){
       expect(function(){
         hitsGraph = new HitsGraph({
-          $el: $el,
+          rootEl: rootEl,
           width: 100
         });
       }).toThrow('height must be a number');
@@ -61,7 +62,7 @@ describe('Hits graph', function(){
     it('Should throw an error if width is not a number', function(){
       expect(function(){
         hitsGraph = new HitsGraph({
-          $el: $el,
+          rootEl: rootEl,
           height: 100
         });
       }).toThrow('width must be a number');
@@ -77,18 +78,6 @@ describe('Hits graph', function(){
       spyOn(hitsGraph, '_drawBackground');
       spyOn(hitsGraph, '_initialiseHistoryCanvas');
       hitsGraph._init();
-    });
-
-    it('Should set up requestAnimationFrame', function(){
-      expect(hitsGraph.requestAnimationFrame).toEqual(jasmine.any(Function));
-    });
-
-    it('Should set up the hits per second count element', function(){
-      expect(hitsGraph.$hitsPerSecondCount).toBeAnInstanceOf(jQuery);
-    });
-
-    it('Should set up the frames per second count element', function(){
-      expect(hitsGraph.$framesPerSecondCount).toBeAnInstanceOf(jQuery);
     });
 
     it('Should create the hits buffer', function(){
@@ -240,13 +229,13 @@ describe('Hits graph', function(){
 
     beforeEach(function(){
       spyOn(Date, 'now').andCallFake(function() { return fakeNow; });
-      spyOn(hitsGraph, 'requestAnimationFrame');
+      spyOn(window, 'requestAnimFrame');
       hitsGraph.start();
       hitsGraph.animateInterval = 1000;
     });
 
-    it('Should provide the animate function as the argument to requestAnimationFrame', function(){
-      expect(hitsGraph.requestAnimationFrame).toHaveBeenCalledWith(hitsGraph._animate);
+    it('Should provide the animate function as the argument to requestAnimFrame', function(){
+      expect(window.requestAnimFrame).toHaveBeenCalledWith(hitsGraph._animate);
     });
 
     it('Should process the history interval at the required framerate', function(){
@@ -256,23 +245,15 @@ describe('Hits graph', function(){
     });
 
     it('Should update the hits per second count after 1 second has elapsed', function(){
-      spyOn(hitsGraph.$hitsPerSecondCount, 'text');
       hitsGraph.buffer = 10;
-
       runAnimation(1000, 16);
-
-      expect(hitsGraph.$hitsPerSecondCount.text.callCount).toBe(1);
-      expect(hitsGraph.$hitsPerSecondCount.text).toHaveBeenCalledWith(10);
+      expect(hitsGraph.hitsPerSecondCountEl.innerText).toBe('10');
     });
 
     it('Should update the frames per second count after 1 second has elapsed', function(){
-      spyOn(hitsGraph.$framesPerSecondCount, 'text');
       hitsGraph.buffer = 10;
-
       runAnimation(1000, 16);
-
-      expect(hitsGraph.$framesPerSecondCount.text.callCount).toBe(1);
-      expect(hitsGraph.$framesPerSecondCount.text).toHaveBeenCalledWith(1);
+      expect(hitsGraph.framesPerSecondCountEl.innerText).toBe('1');
     });
 
   });
@@ -316,8 +297,8 @@ describe('Hits graph', function(){
   it('should draw bars at the correct location on the canvas', function(){
     // Recreate the graph with a custom width to make it easier to test.
     hitsGraph = new HitsGraph({
-      $el: $el,
-      height: $el.height(),
+      rootEl: rootEl,
+      height: 200,
       width: 18
     });
     var cb = jasmine.createSpy();

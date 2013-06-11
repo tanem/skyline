@@ -9,7 +9,7 @@
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
-  .hits-graph {
+  .hg {
     height: 200px;
     left: 50%;
     margin-left: -300px;
@@ -19,56 +19,63 @@
     width: 600px;
   }
 
-  .hits-graph canvas {
+  .hg-background,
+  .hg-history {
     left: 0;
     position: absolute;
     top: 0;
   }
 
-  .hits-graph .hits-per-second,
-  .hits-graph .frames-per-second {
+  .hg-hps,
+  .hg-fps {
     left: 610px;
     position: absolute;
     width: 300px;
   }
 
-  .hits-graph .frames-per-second {
+  .hg-fps {
     top: 30px;
   }
 
-  .hits-graph .count {
+  .hg-hps-count,
+  .hg-fps-count {
     font-size: 22px;
   }
 
-  .hits-graph .label {
+  .hg-hps-label,
+  .hg-fps-label {
     font-size: 12px;
   }
   </style>
 </head>
 <body>
-  <div class="hits-graph">
-    <canvas class="background"></canvas>
-    <canvas class="history"></canvas>
-    <canvas class="axis"></canvas>
-    <div class="hits-per-second"><span class="count"></span> <span class="label">hits / second</span></div>
-    <div class="frames-per-second"><span class="count"></span> <span class="label">frames / second</span></div>
+  <div class="hg">
+    <canvas class="hg-background"></canvas>
+    <canvas class="hg-history"></canvas>
+    <div class="hg-hps"><span class="hg-hps-count"></span> <span class="hg-hps-label">hits / second</span></div>
+    <div class="hg-fps"><span class="hg-fps-count"></span> <span class="hg-fps-label">frames / second</span></div>
   </div>
-  <script src="../src/lib/jquery.js"></script>
-  <script src="../src/lib/underscore.js"></script>
+  <!--<script src="../src/lib/underscore.js"></script>-->
   <script src="../src/lib/modernizr.js"></script>
   <script src="../src/hits-graph.js"></script>
   <script>
   (function(){
     
-    var raf = Modernizr.prefixed('requestAnimationFrame', window) || function(cb){
-      window.setTimeout(cb, 1000 / 60);
-    };
+    // http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+    window.requestAnimFrame = (function(){
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function(callback){
+          window.setTimeout(callback, 1000 / 60);
+        };
+    })();
     
-    var $hitsGraph = $('.hits-graph');
+    var hitsGraphEl = document.getElementsByClassName('hg')[0];
     var hitsGraph = new HitsGraph({
-      $el: $hitsGraph,
-      height: $hitsGraph.height(),
-      width: $hitsGraph.width()
+      rootEl: hitsGraphEl,
+      height: hitsGraphEl.offsetHeight,
+      width: hitsGraphEl.offsetWidth
     });
 
     hitsGraph.start();

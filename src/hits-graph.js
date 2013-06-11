@@ -1,10 +1,33 @@
 (function(){
 
+  // http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+  window.requestAnimFrame = (function(){
+    return window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      function(callback){
+        window.setTimeout(callback, 1000 / 60);
+      };
+  })();
+
+  function extend(target) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    args.forEach(function(arg){
+      Object.keys(arg).forEach(function(key){
+        target[key] = arg[key];
+      });
+    });
+  }
+
+  function isNumber(obj) {
+    return Object.prototype.toString.call(obj) === '[object Number]';
+  }
+
   window.HitsGraph = HitsGraph;
 
   function HitsGraph(opts) {
 
-    _.extend(this, {
+    extend(this, {
       backgroundBarColour: '#cdcdcd',
       barSpacing: 2,
       barWidth: 4,
@@ -13,21 +36,21 @@
       scaleThreshold: 0.9
     }, opts);
 
-    if (_.isUndefined(this.$el) || !this.$el instanceof jQuery) throw new Error('$el must be a jQuery object');
-    if (!_.isNumber(this.height)) throw new Error('height must be a number');
-    if (!_.isNumber(this.width)) throw new Error('width must be a number');
+    if (this.rootEl === void 0) throw new Error('rootEl must be defined');
+    if (!isNumber(this.height)) throw new Error('height must be a number');
+    if (!isNumber(this.width)) throw new Error('width must be a number');
 
-    _.bindAll(this);
+    this._animate = this._animate.bind(this);
+    this._backgroundBarCb = this._backgroundBarCb.bind(this);
+    this._historyBarCb = this._historyBarCb.bind(this);
+
     this._init();
 
   }
 
   HitsGraph.prototype._init = function(){
-    this.requestAnimationFrame = Modernizr.prefixed('requestAnimationFrame', window) || function(cb){
-      window.setTimeout(cb, 1000 / 60);
-    };
-    this.$hitsPerSecondCount = this.$el.find('.hits-per-second .count');
-    this.$framesPerSecondCount = this.$el.find('.frames-per-second .count');
+    this.hitsPerSecondCountEl = this.rootEl.getElementsByClassName('hg-hps-count')[0];
+    this.framesPerSecondCountEl = this.rootEl.getElementsByClassName('hg-fps-count')[0];
     this._createBuffer();
     this._createHistoryArray();
     this._drawBackground();
@@ -49,7 +72,7 @@
 
   // Draws the background bars.
   HitsGraph.prototype._drawBackground = function(){
-    var canvas = this.$el.find('.background').get(0);
+    var canvas = this.rootEl.getElementsByClassName('hg-background')[0];
     this.bgCtx = canvas.getContext('2d');
     canvas.width = this.width;
     canvas.height = this.height;
@@ -63,7 +86,7 @@
 
   // Sets up the non-changing history canvas properties.
   HitsGraph.prototype._initialiseHistoryCanvas = function(){
-    var canvas = this.$el.find('.history').get(0);
+    var canvas = this.rootEl.getElementsByClassName('hg-history')[0];
     canvas.width = this.width;
     canvas.height = this.height;
     this.historyCtx = canvas.getContext('2d');
@@ -79,7 +102,7 @@
   };
 
   HitsGraph.prototype._animate = function(){
-    this.requestAnimationFrame(this._animate);
+    window.requestAnimFrame(this._animate);
 
     var now = Date.now();
     var animateDelta = now - this.animateStart;
@@ -98,8 +121,8 @@
 
     // Process the *-per-second information once a second has elapsed.
     if (perSecondDelta >= 1000) {
-      this.$hitsPerSecondCount.text(Math.round(this.hitsPerSecondHits / (perSecondDelta / 1000)));
-      this.$framesPerSecondCount.text(Math.round(this.framesPerSecondCount / (perSecondDelta / 1000)));
+      this.hitsPerSecondCountEl.innerText = Math.round(this.hitsPerSecondHits / (perSecondDelta / 1000));
+      this.framesPerSecondCountEl.innerText = Math.round(this.framesPerSecondCount / (perSecondDelta / 1000));
       this.perSecondStart = now - (perSecondDelta % 1000);
       this.framesPerSecondCount = this.hitsPerSecondHits = 0;
     }
