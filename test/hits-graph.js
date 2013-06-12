@@ -247,13 +247,13 @@ describe('Hits graph', function(){
     it('Should update the hits per second count after 1 second has elapsed', function(){
       hitsGraph.buffer = 10;
       runAnimation(1000, 16);
-      expect(hitsGraph.hitsPerSecondCountEl.innerText).toBe('10');
+      expect(hitsGraph.hitsPerSecondCountEl.textContent).toBe('10');
     });
 
     it('Should update the frames per second count after 1 second has elapsed', function(){
       hitsGraph.buffer = 10;
       runAnimation(1000, 16);
-      expect(hitsGraph.framesPerSecondCountEl.innerText).toBe('1');
+      expect(hitsGraph.framesPerSecondCountEl.textContent).toBe('1');
     });
 
   });

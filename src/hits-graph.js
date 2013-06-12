@@ -126,8 +126,8 @@
 
     // Process the *-per-second information once a second has elapsed.
     if (perSecondDelta >= 1000) {
-      this.hitsPerSecondCountEl.innerText = Math.round(this.hitsPerSecondHits / (perSecondDelta / 1000));
-      this.framesPerSecondCountEl.innerText = Math.round(this.framesPerSecondCount / (perSecondDelta / 1000));
+      this.hitsPerSecondCountEl.textContent = Math.round(this.hitsPerSecondHits / (perSecondDelta / 1000));
+      this.framesPerSecondCountEl.textContent = Math.round(this.framesPerSecondCount / (perSecondDelta / 1000));
       this.perSecondStart = now - (perSecondDelta % 1000);
       this.framesPerSecondCount = this.hitsPerSecondHits = 0;
     }
