@@ -10,12 +10,21 @@
       };
   })();
 
+  // Copies source object properties onto target. 
   function extend(target) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    args.forEach(function(arg){
-      Object.keys(arg).forEach(function(key){
-        target[key] = arg[key];
+    var sourceObjects = Array.prototype.slice.call(arguments, 1);
+    sourceObjects.forEach(function(object){
+      Object.keys(object).forEach(function(key){
+        target[key] = object[key];
       });
+    });
+  }
+
+  // Binds methods to obj.
+  function bind(obj) {
+    var methodNames = Array.prototype.slice.call(arguments, 1);
+    methodNames.forEach(function(methodName){
+      obj[methodName] = obj[methodName].bind(obj);
     });
   }
 
@@ -23,9 +32,7 @@
     return Object.prototype.toString.call(obj) === '[object Number]';
   }
 
-  window.HitsGraph = HitsGraph;
-
-  function HitsGraph(opts) {
+  window.HitsGraph = function HitsGraph(opts) {
 
     extend(this, {
       backgroundBarColour: '#cdcdcd',
@@ -40,13 +47,11 @@
     if (!isNumber(this.height)) throw new Error('height must be a number');
     if (!isNumber(this.width)) throw new Error('width must be a number');
 
-    this._animate = this._animate.bind(this);
-    this._backgroundBarCb = this._backgroundBarCb.bind(this);
-    this._historyBarCb = this._historyBarCb.bind(this);
+    bind(this, '_animate', '_backgroundBarCb', '_historyBarCb');
 
     this._init();
 
-  }
+  };
 
   HitsGraph.prototype._init = function(){
     this.hitsPerSecondCountEl = this.rootEl.getElementsByClassName('hg-hps-count')[0];
@@ -145,6 +150,7 @@
     this._drawBars(this._historyBarCb);
   };
 
+  // Draws a history bar scaled to the correct height.
   HitsGraph.prototype._historyBarCb = function(xPos){
     var hits = this.history[this.historyStartIndex--] * this.historyMultiplier;
     this.historyCtx.fillRect(xPos, this.height - hits, this.barWidth, hits);

@@ -55,8 +55,6 @@
     <div class="hg-hps"><span class="hg-hps-count"></span> <span class="hg-hps-label">hits / second</span></div>
     <div class="hg-fps"><span class="hg-fps-count"></span> <span class="hg-fps-label">frames / second</span></div>
   </div>
-  <!--<script src="../src/lib/underscore.js"></script>-->
-  <script src="../src/lib/modernizr.js"></script>
   <script src="../src/hits-graph.js"></script>
   <script>
   (function(){
@@ -88,7 +86,7 @@
     function addHits(){
       hitsGraph.addHit();
       window.setTimeout(function(){
-        raf(addHits);
+        window.requestAnimFrame(addHits);
       }, getRandomInt(0, 50));
     };
 
