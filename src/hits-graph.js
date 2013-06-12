@@ -101,15 +101,17 @@
   // Starts the hits graph.
   HitsGraph.prototype.start = function(){
     this.framesPerSecondCount = this.hitsPerSecondHits = 0;
-    this.animateStart = this.perSecondStart = Date.now();
     this.animateInterval = 1000 / this.frameRate;
-    this._animate();
+    window.requestAnimFrame(this._animate);
   };
 
   HitsGraph.prototype._animate = function(){
-    window.requestAnimFrame(this._animate);
 
     var now = Date.now();
+
+    this.animateStart = this.animateStart || now;
+    this.perSecondStart = this.perSecondStart || now;
+
     var animateDelta = now - this.animateStart;
     var perSecondDelta = now - this.perSecondStart;
 
@@ -131,6 +133,8 @@
       this.perSecondStart = now - (perSecondDelta % 1000);
       this.framesPerSecondCount = this.hitsPerSecondHits = 0;
     }
+
+    window.requestAnimFrame(this._animate);
 
   };
 

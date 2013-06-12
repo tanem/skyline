@@ -184,6 +184,7 @@ describe('Hits graph', function(){
     beforeEach(function(){
       // Doing this to ensure a consistent value for testing.
       spyOn(Date, 'now').andReturn(100);
+      spyOn(window, 'requestAnimFrame');
       spyOn(hitsGraph, '_animate');
       hitsGraph.start();
     });
@@ -196,20 +197,12 @@ describe('Hits graph', function(){
       expect(hitsGraph.hitsPerSecondHits).toBe(0);
     });
 
-    it('Should initialise the animation start time', function(){
-      expect(hitsGraph.animateStart).toBe(100);
-    });
-
-    it('Should initialise the per second start time', function(){
-      expect(hitsGraph.animateStart).toBe(100);
-    });
-
     it('Should set up the animation interval time', function(){
       expect(hitsGraph.animateInterval).toBe(100);
     });
 
     it('Should start the animation', function(){
-      expect(hitsGraph._animate).toHaveBeenCalled();
+      expect(window.requestAnimFrame).toHaveBeenCalledWith(hitsGraph._animate);
     });
 
   });
@@ -232,6 +225,16 @@ describe('Hits graph', function(){
       spyOn(window, 'requestAnimFrame');
       hitsGraph.start();
       hitsGraph.animateInterval = 1000;
+    });
+
+    it('Should initialise the animation start time when needed', function(){
+      hitsGraph._animate();
+      expect(hitsGraph.animateStart).toBe(0);
+    });
+
+    it('Should initialise the per second start time when needed', function(){
+      hitsGraph._animate();
+      expect(hitsGraph.animateStart).toBe(0);
     });
 
     it('Should provide the animate function as the argument to requestAnimFrame', function(){
