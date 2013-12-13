@@ -1,7 +1,7 @@
 {
   "name": "activity-graph",
   "description": "A graph that shows \"stuff\" in real time.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Tane Morgan",
     "url": "http://github.com/tanem"
