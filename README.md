@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/tanem/activity-graph.png?branch=master)](https://travis-ci.org/tanem/activity-graph)
 
-A graph that shows \"stuff\" in real time.
+A graph that shows "stuff" in real time.
 
 ![](https://raw.github.com/tanem/activity-graph/master/screenshot.png)
 
