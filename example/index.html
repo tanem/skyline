@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Hits Graph Demo | Realtime Dashboard</title>
+  <title>Activity Graph Demo</title>
   <style>
   body {
     background: #eee;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
-  .hg {
+  .ag {
     height: 200px;
     left: 50%;
     margin-left: -300px;
@@ -19,43 +19,43 @@
     width: 600px;
   }
 
-  .hg-background,
-  .hg-history {
+  .ag-background,
+  .ag-history {
     left: 0;
     position: absolute;
     top: 0;
   }
 
-  .hg-hps,
-  .hg-fps {
+  .ag-hps,
+  .ag-fps {
     left: 610px;
     position: absolute;
     width: 300px;
   }
 
-  .hg-fps {
+  .ag-fps {
     top: 30px;
   }
 
-  .hg-hps-count,
-  .hg-fps-count {
+  .ag-hps-count,
+  .ag-fps-count {
     font-size: 22px;
   }
 
-  .hg-hps-label,
-  .hg-fps-label {
+  .ag-hps-label,
+  .ag-fps-label {
     font-size: 12px;
   }
   </style>
 </head>
 <body>
-  <div class="hg">
-    <canvas class="hg-background"></canvas>
-    <canvas class="hg-history"></canvas>
-    <div class="hg-hps"><span class="hg-hps-count"></span> <span class="hg-hps-label">hits / second</span></div>
-    <div class="hg-fps"><span class="hg-fps-count"></span> <span class="hg-fps-label">frames / second</span></div>
+  <div class="ag">
+    <canvas class="ag-background"></canvas>
+    <canvas class="ag-history"></canvas>
+    <div class="ag-hps"><span class="ag-hps-count"></span> <span class="ag-hps-label">hits / second</span></div>
+    <div class="ag-fps"><span class="ag-fps-count"></span> <span class="ag-fps-label">frames / second</span></div>
   </div>
-  <script src="../src/hits-graph.js"></script>
+  <script src="../src/activity-graph.js"></script>
   <script>
   (function(){
     
@@ -69,14 +69,14 @@
         };
     })();
     
-    var hitsGraphEl = document.getElementsByClassName('hg')[0];
-    var hitsGraph = new HitsGraph({
-      rootEl: hitsGraphEl,
-      height: hitsGraphEl.offsetHeight,
-      width: hitsGraphEl.offsetWidth
+    var activityGraphEl = document.querySelector('.ag');
+    var activityGraph = new ActivityGraph({
+      rootEl: activityGraphEl,
+      height: activityGraphEl.offsetHeight,
+      width: activityGraphEl.offsetWidth
     });
 
-    hitsGraph.start();
+    activityGraph.start();
     
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#Example:_Using_Math.random
     function getRandomInt(min, max) {
@@ -84,13 +84,13 @@
     }
 
     function addHits(){
-      hitsGraph.addHit();
+      activityGraph.addHit();
       window.setTimeout(function(){
         window.requestAnimFrame(addHits);
       }, getRandomInt(0, 50));
     };
 
-    window.requestAnimFrame(addHits());
+    window.requestAnimFrame(addHits);
 
   }());
   </script>

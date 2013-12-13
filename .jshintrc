@@ -12,6 +12,7 @@
     "it": false,
     "expect": true,
     "spyOn": false,
-    "jasmine": false
+    "jasmine": false,
+    "ActivityGraph": false
   }
 }

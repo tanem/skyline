@@ -1,5 +1,7 @@
 (function(){
 
+  'use strict';
+  
   // http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   window.requestAnimFrame = (function(){
     return window.requestAnimationFrame ||
@@ -32,7 +34,7 @@
     return Object.prototype.toString.call(obj) === '[object Number]';
   }
 
-  window.HitsGraph = function HitsGraph(opts) {
+  var ActivityGraph = window.ActivityGraph = function ActivityGraph(opts) {
 
     extend(this, {
       backgroundBarColour: '#cdcdcd',
@@ -53,9 +55,9 @@
 
   };
 
-  HitsGraph.prototype._init = function(){
-    this.hitsPerSecondCountEl = this.rootEl.getElementsByClassName('hg-hps-count')[0];
-    this.framesPerSecondCountEl = this.rootEl.getElementsByClassName('hg-fps-count')[0];
+  ActivityGraph.prototype._init = function(){
+    this.hitsPerSecondCountEl = this.rootEl.querySelector('.ag-hps-count');
+    this.framesPerSecondCountEl = this.rootEl.querySelector('.ag-fps-count');
     this._createBuffer();
     this._createHistoryArray();
     this._drawBackground();
@@ -64,20 +66,20 @@
 
   // Hits are temporarily stored in the buffer
   // before being moved to the history array.
-  HitsGraph.prototype._createBuffer = function(){
+  ActivityGraph.prototype._createBuffer = function(){
     this.buffer = 0;
   };
 
   // The history array contains the actual hit counts.
-  HitsGraph.prototype._createHistoryArray = function(){
+  ActivityGraph.prototype._createHistoryArray = function(){
     this.history = [];
     var i = 0, j = this.width / (this.barSpacing + this.barWidth);
     for (; i < j; i++) this.history[i] = 0;
   };
 
   // Draws the background bars.
-  HitsGraph.prototype._drawBackground = function(){
-    var canvas = this.rootEl.getElementsByClassName('hg-background')[0];
+  ActivityGraph.prototype._drawBackground = function(){
+    var canvas = this.rootEl.querySelector('.ag-background');
     this.bgCtx = canvas.getContext('2d');
     canvas.width = this.width;
     canvas.height = this.height;
@@ -85,27 +87,27 @@
     this._drawBars(this._backgroundBarCb);
   };
 
-  HitsGraph.prototype._backgroundBarCb = function(xPos){
+  ActivityGraph.prototype._backgroundBarCb = function(xPos){
     this.bgCtx.fillRect(xPos, 0, this.barWidth, this.height);
   };
 
   // Sets up the non-changing history canvas properties.
-  HitsGraph.prototype._initialiseHistoryCanvas = function(){
-    var canvas = this.rootEl.getElementsByClassName('hg-history')[0];
+  ActivityGraph.prototype._initialiseHistoryCanvas = function(){
+    var canvas = this.rootEl.querySelector('.ag-history');
     canvas.width = this.width;
     canvas.height = this.height;
     this.historyCtx = canvas.getContext('2d');
     this.historyCtx.fillStyle = this.historyBarColour;
   };
 
-  // Starts the hits graph.
-  HitsGraph.prototype.start = function(){
+  // Starts the activity graph.
+  ActivityGraph.prototype.start = function(){
     this.framesPerSecondCount = this.hitsPerSecondHits = 0;
     this.animateInterval = 1000 / this.frameRate;
     window.requestAnimFrame(this._animate);
   };
 
-  HitsGraph.prototype._animate = function(){
+  ActivityGraph.prototype._animate = function(){
 
     var now = Date.now();
 
@@ -138,14 +140,14 @@
 
   };
 
-  HitsGraph.prototype._processHistoryInterval = function(){
+  ActivityGraph.prototype._processHistoryInterval = function(){
     this.history.shift();
     this.history.push(this.buffer);
     this._drawHistory();
     this.buffer = 0;
   };
 
-  HitsGraph.prototype._drawHistory = function(){
+  ActivityGraph.prototype._drawHistory = function(){
     var maxHits = Math.max.apply(Math, this.history);
     var maxBarHeight = this.height * this.scaleThreshold;
     this.historyMultiplier = maxHits === 0 ? 0 : maxBarHeight / maxHits;
@@ -154,19 +156,19 @@
     this._drawBars(this._historyBarCb);
   };
 
-  // Draws a history bar scaled to the correct height.
-  HitsGraph.prototype._historyBarCb = function(xPos){
+  // Draws an activity bar scaled to the correct height.
+  ActivityGraph.prototype._historyBarCb = function(xPos){
     var hits = this.history[this.historyStartIndex--] * this.historyMultiplier;
     this.historyCtx.fillRect(xPos, this.height - hits, this.barWidth, hits);
   };
 
   // Draws graph bars by executing a callback at the required interval.
-  HitsGraph.prototype._drawBars = function(cb){
+  ActivityGraph.prototype._drawBars = function(cb){
     var xPos = this.width - this.barWidth, start = 0;
     for (; xPos > start; xPos -= (this.barSpacing + this.barWidth)) cb(xPos);
   };
 
-  HitsGraph.prototype.addHit = function(){
+  ActivityGraph.prototype.addHit = function(){
     this.buffer++;
   };
 

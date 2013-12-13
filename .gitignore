@@ -3,3 +3,4 @@ node_modules
 SpecRunner.html
 _coverage
 _dist
+.grunt

@@ -20,9 +20,9 @@ To run the unit tests then watch the required files for changes:
 
     $ grunt start
 
-## Demo
+## Example
 
-    $ open demo/index.html
+    $ open example/index.html
 
 ## Unit Testing
 

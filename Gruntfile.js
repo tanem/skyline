@@ -6,8 +6,8 @@ module.exports = function(grunt){
       options: {
         jshintrc: '.jshintrc'
       },
-      src: 'src/hits-graph.js',
-      test: 'test/hits-graph.js'
+      src: 'src/activity-graph.js',
+      test: 'test/activity-graph.js'
     },
 
     watch: {

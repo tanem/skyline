@@ -1,6 +1,8 @@
-describe('Hits graph', function(){
+describe('Activity Graph', function(){
 
-  var hitsGraph,
+  'use strict';
+
+  var activityGraph,
     rootEl,
     backgroundCanvas,
     historyCanvas;
@@ -20,18 +22,18 @@ describe('Hits graph', function(){
 
     // http://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro
     var dummyDiv = document.createElement('div');
-    dummyDiv.innerHTML = '<div class="hg" style="width:600px;height:200px;">' +
-      '<canvas class="hg-background"></canvas>' +
-      '<canvas class="hg-history"></canvas>' +
-      '<div class="hg-hps"><span class="hg-hps-count"></span> <span class="hg-hps-label">hits / second</span></div>' +
-      '<div class="hg-fps"><span class="hg-fps-count"></span> <span class="hg-fps-label">frames / second</span></div>' +
+    dummyDiv.innerHTML = '<div class="ag" style="width:600px;height:200px;">' +
+      '<canvas class="ag-background"></canvas>' +
+      '<canvas class="ag-history"></canvas>' +
+      '<div class="ag-hps"><span class="ag-hps-count"></span> <span class="ag-hps-label">hits / second</span></div>' +
+      '<div class="ag-fps"><span class="ag-fps-count"></span> <span class="ag-fps-label">frames / second</span></div>' +
     '</div>';
     rootEl = dummyDiv.childNodes[0];
 
-    backgroundCanvas = rootEl.getElementsByClassName('hg-background')[0];
-    historyCanvas = rootEl.getElementsByClassName('hg-history')[0];
+    backgroundCanvas = rootEl.querySelector('.ag-background');
+    historyCanvas = rootEl.querySelector('.ag-history');
 
-    hitsGraph = new HitsGraph({
+    activityGraph = new ActivityGraph({
       rootEl: rootEl,
       height: 200,
       width: 600
@@ -43,7 +45,7 @@ describe('Hits graph', function(){
 
     it('Should throw an error if rootEl is not defined', function(){
       expect(function(){
-        hitsGraph = new HitsGraph({
+        activityGraph = new ActivityGraph({
           height: 100,
           width: 100
         });
@@ -52,7 +54,7 @@ describe('Hits graph', function(){
 
     it('Should throw an error if height is not a number', function(){
       expect(function(){
-        hitsGraph = new HitsGraph({
+        activityGraph = new ActivityGraph({
           rootEl: rootEl,
           width: 100
         });
@@ -61,7 +63,7 @@ describe('Hits graph', function(){
 
     it('Should throw an error if width is not a number', function(){
       expect(function(){
-        hitsGraph = new HitsGraph({
+        activityGraph = new ActivityGraph({
           rootEl: rootEl,
           height: 100
         });
@@ -73,27 +75,27 @@ describe('Hits graph', function(){
   describe('Initialisation:', function(){
 
     beforeEach(function(){
-      spyOn(hitsGraph, '_createBuffer');
-      spyOn(hitsGraph, '_createHistoryArray');
-      spyOn(hitsGraph, '_drawBackground');
-      spyOn(hitsGraph, '_initialiseHistoryCanvas');
-      hitsGraph._init();
+      spyOn(activityGraph, '_createBuffer');
+      spyOn(activityGraph, '_createHistoryArray');
+      spyOn(activityGraph, '_drawBackground');
+      spyOn(activityGraph, '_initialiseHistoryCanvas');
+      activityGraph._init();
     });
 
     it('Should create the hits buffer', function(){
-      expect(hitsGraph._createBuffer).toHaveBeenCalled();
+      expect(activityGraph._createBuffer).toHaveBeenCalled();
     });
 
     it('Should create the hits history array', function(){
-      expect(hitsGraph._createHistoryArray).toHaveBeenCalled();
+      expect(activityGraph._createHistoryArray).toHaveBeenCalled();
     });
 
     it('Should draw the background', function(){
-      expect(hitsGraph._drawBackground).toHaveBeenCalled();
+      expect(activityGraph._drawBackground).toHaveBeenCalled();
     });
 
     it('Should initialise the hits history canvas', function(){
-      expect(hitsGraph._initialiseHistoryCanvas).toHaveBeenCalled();
+      expect(activityGraph._initialiseHistoryCanvas).toHaveBeenCalled();
     });
 
   });
@@ -101,9 +103,9 @@ describe('Hits graph', function(){
   describe('Background:', function(){
 
     beforeEach(function(){
-      spyOn(hitsGraph, '_drawBars');
-      spyOn(hitsGraph.bgCtx, 'fillRect');
-      hitsGraph._drawBackground();
+      spyOn(activityGraph, '_drawBars');
+      spyOn(activityGraph.bgCtx, 'fillRect');
+      activityGraph._drawBackground();
     });
 
     it('Should correctly set the background canvas width', function(){
@@ -115,16 +117,16 @@ describe('Hits graph', function(){
     });
 
     it('Should correctly set the background bar colour', function(){
-      expect(hitsGraph.bgCtx.fillStyle).toBe('#cdcdcd');
+      expect(activityGraph.bgCtx.fillStyle).toBe('#cdcdcd');
     });
 
     it('Should draw the background bars at the correct intervals', function(){
-      expect(hitsGraph._drawBars).toHaveBeenCalledWith(hitsGraph._backgroundBarCb);
+      expect(activityGraph._drawBars).toHaveBeenCalledWith(activityGraph._backgroundBarCb);
     });
 
     it('Should draw a single background bar correctly', function(){
-      hitsGraph._backgroundBarCb(10);
-      expect(hitsGraph.bgCtx.fillRect).toHaveBeenCalledWith(10, 0, 4, 200);
+      activityGraph._backgroundBarCb(10);
+      expect(activityGraph.bgCtx.fillRect).toHaveBeenCalledWith(10, 0, 4, 200);
     });
 
   });
@@ -134,8 +136,8 @@ describe('Hits graph', function(){
     describe('Initialise:', function(){
 
       beforeEach(function(){
-        spyOn(hitsGraph.historyCtx, 'fillRect');
-        hitsGraph._initialiseHistoryCanvas();
+        spyOn(activityGraph.historyCtx, 'fillRect');
+        activityGraph._initialiseHistoryCanvas();
       });
 
       it('Should correctly set the history canvas width', function(){
@@ -147,7 +149,7 @@ describe('Hits graph', function(){
       });
 
       it('Should correctly set the history bar colour', function(){
-        expect(hitsGraph.historyCtx.fillStyle).toBe('#00cccc');
+        expect(activityGraph.historyCtx.fillStyle).toBe('#00cccc');
       });
 
     });
@@ -155,24 +157,24 @@ describe('Hits graph', function(){
     describe('Draw:', function(){
 
       beforeEach(function(){
-        spyOn(hitsGraph, '_drawBars');
-        hitsGraph.history.shift();
-        hitsGraph.history.push(10);
-        hitsGraph._drawHistory();
+        spyOn(activityGraph, '_drawBars');
+        activityGraph.history.shift();
+        activityGraph.history.push(10);
+        activityGraph._drawHistory();
       });
 
       it('Should calculate the history multiplier correctly', function(){
-        expect(hitsGraph.historyMultiplier).toBe(18);
+        expect(activityGraph.historyMultiplier).toBe(18);
       });
 
       it('Should draw the history from right to left', function(){
-        expect(hitsGraph.historyStartIndex).toBe(99);
+        expect(activityGraph.historyStartIndex).toBe(99);
       });
 
       it('Should draw the bars at the correct height', function(){
-        spyOn(hitsGraph.historyCtx, 'fillRect');
-        hitsGraph._historyBarCb(10);
-        expect(hitsGraph.historyCtx.fillRect).toHaveBeenCalledWith(10, 20, 4, 180);
+        spyOn(activityGraph.historyCtx, 'fillRect');
+        activityGraph._historyBarCb(10);
+        expect(activityGraph.historyCtx.fillRect).toHaveBeenCalledWith(10, 20, 4, 180);
       });
 
     });
@@ -185,24 +187,24 @@ describe('Hits graph', function(){
       // Doing this to ensure a consistent value for testing.
       spyOn(Date, 'now').andReturn(100);
       spyOn(window, 'requestAnimFrame');
-      spyOn(hitsGraph, '_animate');
-      hitsGraph.start();
+      spyOn(activityGraph, '_animate');
+      activityGraph.start();
     });
 
     it('Should initialise the frames per second count', function(){
-      expect(hitsGraph.framesPerSecondCount).toBe(0);
+      expect(activityGraph.framesPerSecondCount).toBe(0);
     });
 
     it('Should initialise the hits per second count', function(){
-      expect(hitsGraph.hitsPerSecondHits).toBe(0);
+      expect(activityGraph.hitsPerSecondHits).toBe(0);
     });
 
     it('Should set up the animation interval time', function(){
-      expect(hitsGraph.animateInterval).toBe(100);
+      expect(activityGraph.animateInterval).toBe(100);
     });
 
     it('Should start the animation', function(){
-      expect(window.requestAnimFrame).toHaveBeenCalledWith(hitsGraph._animate);
+      expect(window.requestAnimFrame).toHaveBeenCalledWith(activityGraph._animate);
     });
 
   });
@@ -216,47 +218,47 @@ describe('Hits graph', function(){
     var runAnimation = function(time, step){
       for (var i = 0; i < time + step; i += step) {
         fakeNow += step;
-        hitsGraph._animate();
+        activityGraph._animate();
       }
     };
 
     beforeEach(function(){
       spyOn(Date, 'now').andCallFake(function() { return fakeNow; });
       spyOn(window, 'requestAnimFrame');
-      hitsGraph.start();
-      hitsGraph.animateInterval = 1000;
+      activityGraph.start();
+      activityGraph.animateInterval = 1000;
     });
 
     it('Should initialise the animation start time when needed', function(){
-      hitsGraph._animate();
-      expect(hitsGraph.animateStart).toBe(0);
+      activityGraph._animate();
+      expect(activityGraph.animateStart).toBe(0);
     });
 
     it('Should initialise the per second start time when needed', function(){
-      hitsGraph._animate();
-      expect(hitsGraph.animateStart).toBe(0);
+      activityGraph._animate();
+      expect(activityGraph.animateStart).toBe(0);
     });
 
     it('Should provide the animate function as the argument to requestAnimFrame', function(){
-      expect(window.requestAnimFrame).toHaveBeenCalledWith(hitsGraph._animate);
+      expect(window.requestAnimFrame).toHaveBeenCalledWith(activityGraph._animate);
     });
 
     it('Should process the history interval at the required framerate', function(){
-      spyOn(hitsGraph, '_processHistoryInterval');
+      spyOn(activityGraph, '_processHistoryInterval');
       runAnimation(5000, 16);
-      expect(hitsGraph._processHistoryInterval.callCount).toBe(5);
+      expect(activityGraph._processHistoryInterval.callCount).toBe(5);
     });
 
     it('Should update the hits per second count after 1 second has elapsed', function(){
-      hitsGraph.buffer = 10;
+      activityGraph.buffer = 10;
       runAnimation(1000, 16);
-      expect(hitsGraph.hitsPerSecondCountEl.textContent).toBe('10');
+      expect(activityGraph.hitsPerSecondCountEl.textContent).toBe('10');
     });
 
     it('Should update the frames per second count after 1 second has elapsed', function(){
-      hitsGraph.buffer = 10;
+      activityGraph.buffer = 10;
       runAnimation(1000, 16);
-      expect(hitsGraph.framesPerSecondCountEl.textContent).toBe('1');
+      expect(activityGraph.framesPerSecondCountEl.textContent).toBe('1');
     });
 
   });
@@ -264,49 +266,49 @@ describe('Hits graph', function(){
   describe('Process history interval:', function(){
 
     beforeEach(function(){
-      spyOn(hitsGraph, '_drawHistory');
-      hitsGraph.history[0] = 10;
-      hitsGraph.buffer = 10;
-      hitsGraph._processHistoryInterval();
+      spyOn(activityGraph, '_drawHistory');
+      activityGraph.history[0] = 10;
+      activityGraph.buffer = 10;
+      activityGraph._processHistoryInterval();
     });
 
     it('Should discard the oldest value from the history array', function(){
-      expect(hitsGraph.history[0]).toBe(0);
+      expect(activityGraph.history[0]).toBe(0);
     });
 
     it('Should add the buffer value to the end of the history array', function(){
-      expect(hitsGraph.history[hitsGraph.history.length - 1]).toBe(10);
+      expect(activityGraph.history[activityGraph.history.length - 1]).toBe(10);
     });
 
     it('Should redraw the history graph', function(){
-      expect(hitsGraph._drawHistory).toHaveBeenCalled();
+      expect(activityGraph._drawHistory).toHaveBeenCalled();
     });
 
     it('Should reset the buffer', function(){
-      expect(hitsGraph.buffer).toBe(0);
+      expect(activityGraph.buffer).toBe(0);
     });
 
   });
 
   it('should create the hits buffer correctly', function(){
-    expect(hitsGraph.buffer).toBe(0);
+    expect(activityGraph.buffer).toBe(0);
   });
 
   it('should create the hits history correctly', function(){
-    expect(hitsGraph.history).toBeAnInstanceOf(Array);
-    expect(hitsGraph.history.length).toEqual(100);
+    expect(activityGraph.history).toBeAnInstanceOf(Array);
+    expect(activityGraph.history.length).toEqual(100);
   });
 
   it('should draw bars at the correct location on the canvas', function(){
     // Recreate the graph with a custom width to make it easier to test.
-    hitsGraph = new HitsGraph({
+    activityGraph = new ActivityGraph({
       rootEl: rootEl,
       height: 200,
       width: 18
     });
     var cb = jasmine.createSpy();
 
-    hitsGraph._drawBars(cb);
+    activityGraph._drawBars(cb);
 
     expect(cb.callCount).toBe(3);
     expect(cb.argsForCall[0]).toEqual([14]);
@@ -315,8 +317,8 @@ describe('Hits graph', function(){
   });
 
   it('should add a hit to the buffer', function(){
-    hitsGraph.addHit();
-    expect(hitsGraph.buffer).toBe(1);
+    activityGraph.addHit();
+    expect(activityGraph.buffer).toBe(1);
   });
 
 });
