@@ -1,22 +1,21 @@
 {
-  "name": "realtime-dashboard-hits-graph",
-  "description": "Realtime dashboard hits graph component.",
+  "name": "activity-graph",
+  "description": "A graph that shows \"stuff\" in real time.",
   "version": "1.0.0",
   "author": {
     "name": "Tane Morgan",
     "url": "http://github.com/tanem"
   },
-  "homepage": "http://github.com/tanem/realtime-dashboard-hits-graph",
+  "homepage": "http://github.com/tanem/activity-graph",
   "repository": {
     "type": "git",
-    "url": "http://github.com/tanem/realtime-dashboard-hits-graph.git"
+    "url": "http://github.com/tanem/activity-graph.git"
   },
   "bugs": {
-    "url": "http://github.com/tanem/realtime-dashboard-hits-graph/issues"
+    "url": "http://github.com/tanem/activity-graph/issues"
   },
-  "engines": {
-    "node": ">= 0.10.3",
-    "npm": ">= 1.2.17"
+  "engines": {  
+    "node": ">= 0.10.22"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

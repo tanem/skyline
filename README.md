@@ -1,15 +1,14 @@
-# Realtime Dashboard Hits Graph
+# Activity Graph
 
-[![Build Status](https://travis-ci.org/tanem/realtime-dashboard-hits-graph.png?branch=master)](https://travis-ci.org/tanem/realtime-dashboard-hits-graph)
+[![Build Status](https://travis-ci.org/tanem/activity-graph.png?branch=master)](https://travis-ci.org/tanem/activity-graph)
 
-The hits graph component of a realtime dashboard application.
+A graph that shows \"stuff\" in real time.
 
-![](https://raw.github.com/tanem/realtime-dashboard-hits-graph/master/screenshot.png)
+![](https://raw.github.com/tanem/activity-graph/master/screenshot.png)
 
 ## Dependencies
 
  * [Node.js](http://nodejs.org/)
- * [npm](https://npmjs.org/)
  
 Installing:
 

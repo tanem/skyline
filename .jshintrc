@@ -1,3 +1,17 @@
 {
-  "browser": true
+  "browser": true,
+  "node": true,
+  "strict": true,
+  "unused": true,
+  "undef": true,
+  "trailing": true,
+  "globals": {
+    "describe": false,
+    "beforeEach": false,
+    "afterEach": false,
+    "it": false,
+    "expect": true,
+    "spyOn": false,
+    "jasmine": false
+  }
 }
