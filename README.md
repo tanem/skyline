@@ -21,15 +21,13 @@ This library may be used stand-alone without the component tool, simply add ./st
 
 ## Live Demo
 
-[Check out the live demo on CodePen](http://codepen.io/tanem/pen/AaxDd), which uses the stand-alone files.
+[Check out the live demo on CodePen](http://codepen.io/tanem/pen/zkanq), which uses the stand-alone files.
 
 ## API
 
 ### new RealtimeBarGraph
 
 Initialize a new `RealtimeBarGraph`.
-
-```
 
 ### RealtimeBarGraph#barSpacing(barSpacing:Number)
 
