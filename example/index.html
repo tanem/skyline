@@ -2,95 +2,43 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Activity Graph Demo</title>
+  <title>Realtime Bar Graph Demo</title>
   <style>
   body {
     background: #eee;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
-  .ag {
-    height: 200px;
+  .rtbg {
     left: 50%;
-    margin-left: -300px;
-    margin-top: -100px;
+    margin-left: -390px;
+    margin-top: -140px;
     position: absolute;
     top: 50%;
-    width: 600px;
-  }
-
-  .ag-background,
-  .ag-history {
-    left: 0;
-    position: absolute;
-    top: 0;
-  }
-
-  .ag-hps,
-  .ag-fps {
-    left: 610px;
-    position: absolute;
-    width: 300px;
-  }
-
-  .ag-fps {
-    top: 30px;
-  }
-
-  .ag-hps-count,
-  .ag-fps-count {
-    font-size: 22px;
-  }
-
-  .ag-hps-label,
-  .ag-fps-label {
-    font-size: 12px;
   }
   </style>
+  <link href="../build/build.css" rel="stylesheet" type="text/css" media="all">
 </head>
 <body>
-  <div class="ag">
-    <canvas class="ag-background"></canvas>
-    <canvas class="ag-history"></canvas>
-    <div class="ag-hps"><span class="ag-hps-count"></span> <span class="ag-hps-label">hits / second</span></div>
-    <div class="ag-fps"><span class="ag-fps-count"></span> <span class="ag-fps-label">frames / second</span></div>
-  </div>
-  <script src="../src/activity-graph.js"></script>
+  <script src="../build/build.js"></script>
   <script>
   (function(){
-    
-    // http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
-    window.requestAnimFrame = (function(){
-      return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        function(callback){
-          window.setTimeout(callback, 1000 / 60);
-        };
-    })();
-    
-    var activityGraphEl = document.querySelector('.ag');
-    var activityGraph = new ActivityGraph({
-      rootEl: activityGraphEl,
-      height: activityGraphEl.offsetHeight,
-      width: activityGraphEl.offsetWidth
-    });
+      
+    var raf = require('raf');
+    var random = require('random');
+    var RealtimeBarGraph = require('realtime-bar-graph');
 
-    activityGraph.start();
-    
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#Example:_Using_Math.random
-    function getRandomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    var realtimeBarGraph = new RealtimeBarGraph();
+    document.body.appendChild(realtimeBarGraph.el);
+    realtimeBarGraph.start();
 
     function addHits(){
-      activityGraph.addHit();
+      realtimeBarGraph.addHit();
       window.setTimeout(function(){
-        window.requestAnimFrame(addHits);
-      }, getRandomInt(0, 50));
+        raf(addHits);
+      }, random(0, 100, true));
     };
 
-    window.requestAnimFrame(addHits);
+    raf(addHits);
 
   }());
   </script>

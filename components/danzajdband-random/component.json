@@ -1,0 +1,15 @@
+{
+  "name": "random",
+  "repo": "danzajdband/random",
+  "description": "Generate random numbers",
+  "version": "0.0.1",
+  "keywords": [
+    "random",
+    "number"
+  ],
+  "dependencies": {},
+  "development": {},
+  "scripts": [
+    "index.js"
+  ]
+}

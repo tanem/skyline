@@ -1,37 +1,124 @@
-# Activity Graph
+# realtime-bar-graph
 
-[![Build Status](https://travis-ci.org/tanem/activity-graph.png?branch=master)](https://travis-ci.org/tanem/activity-graph)
+A bar graph that displays information in real time using canvas.
 
-A graph that shows "stuff" in real time.
+## Installation
 
-![](https://raw.github.com/tanem/activity-graph/master/screenshot.png)
+Install with [component(1)](http://component.io):
 
-## Dependencies
+```sh
+$ component install tanem/realtime-bar-graph
+```
 
- * [Node.js](http://nodejs.org/)
- 
-Installing:
+## Stand-alone
 
-    $ npm install
+This library may be used stand-alone without the component tool, simply add ./standalone/realtime-bar-graph.css and ./standalone/realtime-bar-graph.js to your application and reference the `RealtimeBarGraph` global. With all its dependencies realtime-bar-graph is the following size:
 
-## Start
+```
+20K standalone/realtime-bar-graph.js
+12K  standalone/realtime-bar-graph.min.js
+```
 
-To run the unit tests then watch the required files for changes:
+## Live Demo
 
-    $ grunt start
+[Check out the live demo on CodePen](http://codepen.io/tanem/pen/AaxDd), which uses the stand-alone files.
 
-## Example
+## API
 
-    $ open example/index.html
+### new RealtimeBarGraph
 
-## Unit Testing
+Initialize a new `RealtimeBarGraph`.
 
-To run via [PhantomJS](http://phantomjs.org/):
+```
 
-    $ grunt test
+### RealtimeBarGraph#barSpacing(barSpacing:Number)
 
-That will also generate `./SpecRunner.html`, which can be used to view the tests in the browser.
+Set the bar spacing.
 
-## Credits
+```js
+realtimeBarGraph.barSpacing(3)
+```
 
- * [Hummingbird](http://hummingbirdstats.com/), the original inspiration for this component.
+### RealtimeBarGraph#barWidth(barWidth:Number)
+
+Set the bar width.
+
+```js
+realtimeBarGraph.barSpacing(5)
+```
+
+### RealtimeBarGraph#gutter(gutter:Number)
+
+Set the gutter.
+
+```js
+realtimeBarGraph.gutter(50)
+```
+
+### RealtimeBarGraph#width(width:Number)
+
+Set the width.
+
+```js
+realtimeBarGraph.width(600)
+```
+
+### RealtimeBarGraph#height(height:Number)
+
+Set the height.
+
+```js
+realtimeBarGraph.height(300)
+```
+
+### RealtimeBarGraph#backgroundBarColour(backgroundBarColour:String)
+
+Set the background bar colour.
+
+```js
+realtimeBarGraph.backgroundBarColour('#dedede')
+```
+
+### RealtimeBarGraph#historyBarColour(historyBarColour:String)
+
+Set the history bar colour.
+
+```js
+realtimeBarGraph.historyBarColour('#ababab')
+```
+
+### RealtimeBarGraph#axesFont(axesFont:String)
+
+Set the axes font.
+
+```js
+realtimeBarGraph.axesFont('14px sans-serif')
+```
+
+### RealtimeBarGraph#frameRate(frameRate:Number)
+
+Set the frame rate (fps).
+
+```js
+realtimeBarGraph.frameRate(30)
+```
+
+### RealtimeBarGraph#addHit
+
+Add a hit to the graph.
+
+```js
+realtimeBarGraph.addHit()
+```
+
+### RealtimeBarGraph#start
+
+Start the graph animation.
+
+```js
+realtimeBarGraph.start()
+```
+
+## License
+
+MIT
