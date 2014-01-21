@@ -4,8 +4,9 @@ A bar graph that displays information in real time using canvas.
 
 ## Dependencies
 
+The following are needed for installation, unit testing, and building the stand-alone files:
 ```
-npm install -g uglify-js mocha-phantomjs phantomjs component
+npm install -g component mocha-phantomjs phantomjs uglify-js
 ```
 
 ## Installation
@@ -28,14 +29,6 @@ This library may be used stand-alone without the component tool, simply add ./st
 ## Live Demo
 
 [Check out the live demo on CodePen](http://codepen.io/tanem/pen/zkanq), which uses the stand-alone files.
-
-## Unit Tests
-
-Ensure [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) is installed, then:
-
-```sh
-$ make test
-```
 
 ## API
 
