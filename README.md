@@ -2,6 +2,10 @@
 
 A bar graph that displays information in real time using canvas.
 
+## Live Demo
+
+[Check out the live demo on CodePen](http://codepen.io/tanem/pen/zkanq), which uses the stand-alone files.
+
 ## Installation
 
 Ensure [component(1)](http://component.io) is installed, then:
@@ -26,10 +30,6 @@ With all its dependencies realtime-bar-graph is the following size:
 20K standalone/realtime-bar-graph.js
 12K standalone/realtime-bar-graph.min.js
 ```
-
-## Live Demo
-
-[Check out the live demo on CodePen](http://codepen.io/tanem/pen/zkanq), which uses the stand-alone files.
 
 ## Unit Tests
 
