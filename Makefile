@@ -21,7 +21,4 @@ realtime-bar-graph.js: build
 realtime-bar-graph.min.js: realtime-bar-graph.js
 	@uglifyjs $(STANDALONE_DIR)/$< > $(STANDALONE_DIR)/$@
 
-stats: $(STANDALONE_DIR)/realtime-bar-graph.js $(STANDALONE_DIR)/realtime-bar-graph.min.js
-	@du -h $^
-
 .PHONY: clean test stats

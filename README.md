@@ -24,13 +24,6 @@ $ make realtime-bar-graph.min.js
 
 Then add ./standalone/realtime-bar-graph.css and ./standalone/realtime-bar-graph.js to your application and reference the `RealtimeBarGraph` global.
 
-With all its dependencies realtime-bar-graph is the following size:
-
-```
-20K standalone/realtime-bar-graph.js
-12K standalone/realtime-bar-graph.min.js
-```
-
 ## Unit Tests
 
 To run the unit tests, ensure [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) is installed. Then:
