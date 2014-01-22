@@ -2,7 +2,7 @@
   "name": "realtime-bar-graph",
   "repo": "tanem/realtime-bar-graph",
   "description": "A bar graph that displays stuff in real time.",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "keywords": [
     "bar",
     "graph",

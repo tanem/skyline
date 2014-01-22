@@ -2,12 +2,6 @@
 
 A bar graph that displays information in real time using canvas.
 
-## Dependencies
-
-The following are needed for installation, unit testing, and building the stand-alone files:
-
-npm install -g component mocha-phantomjs phantomjs uglify-js
-
 ## Installation
 
 Ensure [component(1)](http://component.io) is installed:
