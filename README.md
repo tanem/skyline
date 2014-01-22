@@ -4,13 +4,7 @@ A bar graph that displays information in real time using canvas.
 
 ## Installation
 
-Ensure [component(1)](http://component.io) is installed:
-
-```sh
-$ npm install -g component
-```
-
-Then:
+Ensure [component(1)](http://component.io) is installed, then:
 
 ```sh
 $ component install tanem/realtime-bar-graph
@@ -18,13 +12,7 @@ $ component install tanem/realtime-bar-graph
 
 ## Stand-alone
 
-This library may be used stand-alone without the component tool. To build the stand-alone files, ensure [UglifyJS2](https://github.com/mishoo/UglifyJS2) is installed:
-
-```sh
-$ npm install -g uglify-js
-```
-
-Then: 
+This library may be used stand-alone without the component tool. To build the stand-alone files, ensure [UglifyJS2](https://github.com/mishoo/UglifyJS2) is installed, then: 
 
 ```sh
 $ make realtime-bar-graph.min.js
@@ -45,9 +33,7 @@ With all its dependencies realtime-bar-graph is the following size:
 
 ## Unit Tests
 
-To run the unit tests, ensure [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) is [installed](https://github.com/metaskills/mocha-phantomjs#installation).
-
-Then:
+To run the unit tests, ensure [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) is installed. Then:
 
 ```sh
 $ make test
