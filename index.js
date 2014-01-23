@@ -24,7 +24,7 @@ function RealtimeBarGraph() {
   this._gutter = 40;
   this._width = 780;
   this._height = 280;
-  this._backgroundBarColour = '#cdcdcd';
+  this._backgroundBarColour = '#ddd';
   this._historyBarColour = '#00cccc';
   this._axesFont = '13px sans-serif';
   this._frameRate = 20;
