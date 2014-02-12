@@ -5,14 +5,12 @@
   "unused": true,
   "undef": true,
   "trailing": true,
+  "newcap": false,
   "globals": {
+    "it": false,
     "describe": false,
     "beforeEach": false,
     "afterEach": false,
-    "it": false,
-    "expect": true,
-    "spyOn": false,
-    "jasmine": false,
-    "ActivityGraph": false
+    "expect": true
   }
 }
