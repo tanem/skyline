@@ -241,7 +241,7 @@ exports.cancel = function(id){
 };
 
 });
-require.register("KenanY-isInteger/index.js", function(exports, require, module){
+require.register("kenany-isinteger/index.js", function(exports, require, module){
 /**
  * Check if a Number is an integer
  *
@@ -330,12 +330,13 @@ map.rect = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'
 
 function parse(html) {
   if ('string' != typeof html) throw new TypeError('String expected');
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
+  
   // tag name
   var m = /<([\w:]+)/.exec(html);
   if (!m) return document.createTextNode(html);
+
+  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
+
   var tag = m[1];
 
   // body support
@@ -419,7 +420,7 @@ function RealtimeBarGraph() {
   this._gutter = 40;
   this._width = 780;
   this._height = 280;
-  this._backgroundBarColour = '#cdcdcd';
+  this._backgroundBarColour = '#ddd';
   this._historyBarColour = '#00cccc';
   this._axesFont = '13px sans-serif';
   this._frameRate = 20;
@@ -672,7 +673,7 @@ RealtimeBarGraph.prototype.animate = function(){
   var now = Date.now();
   this.animateStart = this.animateStart || now;
   var animateDelta = now - this.animateStart;
-
+  
   // Process the history interval at the required framerate.
   if (animateDelta > this.animateInterval) {
 
@@ -822,8 +823,8 @@ module.exports = '<div class="rtbg">\n  <canvas class="rtbg-background"></canvas
 require.alias("component-raf/index.js", "realtime-bar-graph/deps/raf/index.js");
 require.alias("component-raf/index.js", "raf/index.js");
 
-require.alias("KenanY-isInteger/index.js", "realtime-bar-graph/deps/isInteger/index.js");
-require.alias("KenanY-isInteger/index.js", "isInteger/index.js");
+require.alias("kenany-isinteger/index.js", "realtime-bar-graph/deps/isInteger/index.js");
+require.alias("kenany-isinteger/index.js", "isInteger/index.js");
 
 require.alias("component-bind/index.js", "realtime-bar-graph/deps/bind/index.js");
 require.alias("component-bind/index.js", "bind/index.js");
@@ -838,7 +839,7 @@ require.alias("component-autoscale-canvas/index.js", "autoscale-canvas/index.js"
 require.alias("realtime-bar-graph/index.js", "realtime-bar-graph/index.js");if (typeof exports == "object") {
   module.exports = require("realtime-bar-graph");
 } else if (typeof define == "function" && define.amd) {
-  define(function(){ return require("realtime-bar-graph"); });
+  define([], function(){ return require("realtime-bar-graph"); });
 } else {
   this["RealtimeBarGraph"] = require("realtime-bar-graph");
 }})();

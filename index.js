@@ -277,7 +277,7 @@ RealtimeBarGraph.prototype.animate = function(){
   var now = Date.now();
   this.animateStart = this.animateStart || now;
   var animateDelta = now - this.animateStart;
-
+  
   // Process the history interval at the required framerate.
   if (animateDelta > this.animateInterval) {
 
