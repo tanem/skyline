@@ -21,7 +21,7 @@ $ component install tanem/realtime-bar-graph
 This library may be used stand-alone without the component tool. To build the stand-alone files, ensure [UglifyJS2](https://github.com/mishoo/UglifyJS2) is installed, then: 
 
 ```sh
-$ make realtime-bar-graph.min.js
+$ make standalone
 ```
 
 Then add ./standalone/realtime-bar-graph.css and ./standalone/realtime-bar-graph.js to your application and reference the `RealtimeBarGraph` global.

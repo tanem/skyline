@@ -16,10 +16,8 @@ test: build
 	@npm install
 	@testling
 
-realtime-bar-graph.js: build
+standalone: build
 	@component build --standalone RealtimeBarGraph --out $(STANDALONE_DIR) --name realtime-bar-graph
-
-realtime-bar-graph.min.js: realtime-bar-graph.js
-	@uglifyjs $(STANDALONE_DIR)/$< > $(STANDALONE_DIR)/$@
+	@uglifyjs $(STANDALONE_DIR)/realtime-bar-graph.js > $(STANDALONE_DIR)/realtime-bar-graph.min.js
 
 .PHONY: clean test
