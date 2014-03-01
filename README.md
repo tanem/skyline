@@ -2,6 +2,8 @@
 
 A bar graph that displays information in real time using canvas.
 
+[![browser support](https://ci.testling.com/tanem/realtime-bar-graph.png)](https://ci.testling.com/tanem/realtime-bar-graph)
+
 ## Live Demo
 
 [Check out the live demo on CodePen](http://codepen.io/tanem/pen/zkanq), which uses the stand-alone files.
@@ -26,7 +28,7 @@ Then add ./standalone/realtime-bar-graph.css and ./standalone/realtime-bar-graph
 
 ## Unit Tests
 
-To run the unit tests, ensure [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) is installed. Then:
+To run the unit tests, ensure [testling](https://github.com/substack/testling) is installed. Then:
 
 ```sh
 $ make test

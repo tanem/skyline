@@ -13,7 +13,8 @@ clean:
 	rm -fr build components $(STANDALONE_DIR)
 
 test: build
-	@mocha-phantomjs -R dot test/index.html
+	@npm install
+	@testling
 
 realtime-bar-graph.js: build
 	@component build --standalone RealtimeBarGraph --out $(STANDALONE_DIR) --name realtime-bar-graph
