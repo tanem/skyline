@@ -11560,7 +11560,7 @@ require.register("realtime-bar-graph/index.js", Function("exports, require, modu
 var raf = require('raf');\n\
 var bind = require('bind');\n\
 var domify = require('domify');\n\
-var template = require('./template');\n\
+var template = require('./template.html');\n\
 var autoscale = require('autoscale-canvas');\n\
 \n\
 /**\n\
@@ -11966,32 +11966,32 @@ RealtimeBarGraph.prototype.addHit = function(){\n\
   this.buffer++;\n\
 };//@ sourceURL=realtime-bar-graph/index.js"
 ));
-require.register("realtime-bar-graph/template.js", Function("exports, require, module",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+require.register("realtime-bar-graph/template.html", Function("exports, require, module",
 "module.exports = '<div class=\"rtbg\">\\n\
   <canvas class=\"rtbg-background\"></canvas>\\n\
   <canvas class=\"rtbg-history\"></canvas>\\n\
-</div>';//@ sourceURL=realtime-bar-graph/template.js"
+</div>';//@ sourceURL=realtime-bar-graph/template.html"
 ));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 require.alias("component-raf/index.js", "realtime-bar-graph/deps/raf/index.js");
 require.alias("component-raf/index.js", "raf/index.js");
 

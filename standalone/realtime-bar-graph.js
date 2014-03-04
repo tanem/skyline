@@ -399,7 +399,7 @@ require.register("realtime-bar-graph/index.js", function(exports, require, modul
 var raf = require('raf');
 var bind = require('bind');
 var domify = require('domify');
-var template = require('./template');
+var template = require('./template.html');
 var autoscale = require('autoscale-canvas');
 
 /**
@@ -805,21 +805,21 @@ RealtimeBarGraph.prototype.addHit = function(){
   this.buffer++;
 };
 });
-require.register("realtime-bar-graph/template.js", function(exports, require, module){
+
+
+
+
+
+
+
+
+
+
+
+
+require.register("realtime-bar-graph/template.html", function(exports, require, module){
 module.exports = '<div class="rtbg">\n  <canvas class="rtbg-background"></canvas>\n  <canvas class="rtbg-history"></canvas>\n</div>';
 });
-
-
-
-
-
-
-
-
-
-
-
-
 require.alias("component-raf/index.js", "realtime-bar-graph/deps/raf/index.js");
 require.alias("component-raf/index.js", "raf/index.js");
 

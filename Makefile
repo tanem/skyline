@@ -1,13 +1,10 @@
 STANDALONE_DIR = standalone
 
-build: components index.js realtime-bar-graph.css template.js
+build: components index.js realtime-bar-graph.css
 	@component build --dev
 
 components: component.json
 	@component install --dev
-
-template.js: template.html
-	@component convert $<
 
 clean:
 	rm -fr build components $(STANDALONE_DIR)

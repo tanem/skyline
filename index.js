@@ -3,7 +3,7 @@
 var raf = require('raf');
 var bind = require('bind');
 var domify = require('domify');
-var template = require('./template');
+var template = require('./template.html');
 var autoscale = require('autoscale-canvas');
 
 /**
