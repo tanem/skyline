@@ -1,39 +1,19 @@
-
 /**
- * Require the given path.
+ * Require the module at `name`.
  *
- * @param {String} path
+ * @param {String} name
  * @return {Object} exports
  * @api public
  */
 
-function require(path, parent, orig) {
-  var resolved = require.resolve(path);
+function require(name) {
+  var module = require.modules[name];
+  if (!module) throw new Error('failed to require "' + name + '"');
 
-  // lookup failed
-  if (null == resolved) {
-    orig = orig || path;
-    parent = parent || 'root';
-    var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
-    err.path = orig;
-    err.parent = parent;
-    err.require = true;
-    throw err;
-  }
-
-  var module = require.modules[resolved];
-
-  // perform real require()
-  // by invoking the module's
-  // registered function
-  if (!module._resolving && !module.exports) {
-    var mod = {};
-    mod.exports = {};
-    mod.client = mod.component = true;
-    module._resolving = true;
-    module.call(this, mod.exports, require.relative(resolved), mod);
-    delete module._resolving;
-    module.exports = mod.exports;
+  if (!('exports' in module) && typeof module.definition === 'function') {
+    module.client = module.component = true;
+    module.definition.call(this, module.exports = {}, module);
+    delete module.definition;
   }
 
   return module.exports;
@@ -46,160 +26,33 @@ function require(path, parent, orig) {
 require.modules = {};
 
 /**
- * Registered aliases.
- */
-
-require.aliases = {};
-
-/**
- * Resolve `path`.
+ * Register module at `name` with callback `definition`.
  *
- * Lookup:
- *
- *   - PATH/index.js
- *   - PATH.js
- *   - PATH
- *
- * @param {String} path
- * @return {String} path or null
- * @api private
- */
-
-require.resolve = function(path) {
-  if (path.charAt(0) === '/') path = path.slice(1);
-
-  var paths = [
-    path,
-    path + '.js',
-    path + '.json',
-    path + '/index.js',
-    path + '/index.json'
-  ];
-
-  for (var i = 0; i < paths.length; i++) {
-    var path = paths[i];
-    if (require.modules.hasOwnProperty(path)) return path;
-    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
-  }
-};
-
-/**
- * Normalize `path` relative to the current path.
- *
- * @param {String} curr
- * @param {String} path
- * @return {String}
- * @api private
- */
-
-require.normalize = function(curr, path) {
-  var segs = [];
-
-  if ('.' != path.charAt(0)) return path;
-
-  curr = curr.split('/');
-  path = path.split('/');
-
-  for (var i = 0; i < path.length; ++i) {
-    if ('..' == path[i]) {
-      curr.pop();
-    } else if ('.' != path[i] && '' != path[i]) {
-      segs.push(path[i]);
-    }
-  }
-
-  return curr.concat(segs).join('/');
-};
-
-/**
- * Register module at `path` with callback `definition`.
- *
- * @param {String} path
+ * @param {String} name
  * @param {Function} definition
  * @api private
  */
 
-require.register = function(path, definition) {
-  require.modules[path] = definition;
+require.register = function (name, definition) {
+  require.modules[name] = {
+    definition: definition
+  };
 };
 
 /**
- * Alias a module definition.
+ * Define a module's exports immediately with `exports`.
  *
- * @param {String} from
- * @param {String} to
+ * @param {String} name
+ * @param {Generic} exports
  * @api private
  */
 
-require.alias = function(from, to) {
-  if (!require.modules.hasOwnProperty(from)) {
-    throw new Error('Failed to alias "' + from + '", it does not exist');
-  }
-  require.aliases[to] = from;
-};
-
-/**
- * Return a require function relative to the `parent` path.
- *
- * @param {String} parent
- * @return {Function}
- * @api private
- */
-
-require.relative = function(parent) {
-  var p = require.normalize(parent, '..');
-
-  /**
-   * lastIndexOf helper.
-   */
-
-  function lastIndexOf(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-      if (arr[i] === obj) return i;
-    }
-    return -1;
-  }
-
-  /**
-   * The relative require() itself.
-   */
-
-  function localRequire(path) {
-    var resolved = localRequire.resolve(path);
-    return require(resolved, parent, path);
-  }
-
-  /**
-   * Resolve relative to the parent.
-   */
-
-  localRequire.resolve = function(path) {
-    var c = path.charAt(0);
-    if ('/' == c) return path.slice(1);
-    if ('.' == c) return require.normalize(p, path);
-
-    // resolve deps by returning
-    // the dep in the nearest "deps"
-    // directory
-    var segs = parent.split('/');
-    var i = lastIndexOf(segs, 'deps') + 1;
-    if (!i) i = 0;
-    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-    return path;
+require.define = function (name, exports) {
+  require.modules[name] = {
+    exports: exports
   };
-
-  /**
-   * Check if module is defined at `path`.
-   */
-
-  localRequire.exists = function(path) {
-    return require.modules.hasOwnProperty(localRequire.resolve(path));
-  };
-
-  return localRequire;
 };
-require.register("component-raf/index.js", Function("exports, require, module",
+require.register("component~raf@1.1.3", Function("exports, module",
 "/**\n\
  * Expose `requestAnimationFrame()`.\n\
  */\n\
@@ -238,9 +91,16 @@ var cancel = window.cancelAnimationFrame\n\
 exports.cancel = function(id){\n\
   cancel.call(window, id);\n\
 };\n\
-//@ sourceURL=component-raf/index.js"
+\n\
+//# sourceURL=components/component/raf/1.1.3/index.js"
 ));
-require.register("kenany-isinteger/index.js", Function("exports, require, module",
+
+require.modules["component-raf"] = require.modules["component~raf@1.1.3"];
+require.modules["component~raf"] = require.modules["component~raf@1.1.3"];
+require.modules["raf"] = require.modules["component~raf@1.1.3"];
+
+
+require.register("kenany~isinteger@1.0.4", Function("exports, module",
 "/**\n\
  * Check if a Number is an integer\n\
  *\n\
@@ -250,10 +110,18 @@ require.register("kenany-isinteger/index.js", Function("exports, require, module
  */\n\
 module.exports = function(x) {\n\
   return (x === Math.round(x));\n\
-};//@ sourceURL=kenany-isinteger/index.js"
+};\n\
+//# sourceURL=components/kenany/isinteger/1.0.4/index.js"
 ));
-require.register("component-bind/index.js", Function("exports, require, module",
-"/**\n\
+
+require.modules["kenany-isinteger"] = require.modules["kenany~isinteger@1.0.4"];
+require.modules["kenany~isinteger"] = require.modules["kenany~isinteger@1.0.4"];
+require.modules["isinteger"] = require.modules["kenany~isinteger@1.0.4"];
+
+
+require.register("component~bind@0.0.1", Function("exports, module",
+"\n\
+/**\n\
  * Slice reference.\n\
  */\n\
 \n\
@@ -271,15 +139,21 @@ var slice = [].slice;\n\
 module.exports = function(obj, fn){\n\
   if ('string' == typeof fn) fn = obj[fn];\n\
   if ('function' != typeof fn) throw new Error('bind() requires a function');\n\
-  var args = slice.call(arguments, 2);\n\
+  var args = [].slice.call(arguments, 2);\n\
   return function(){\n\
     return fn.apply(obj, args.concat(slice.call(arguments)));\n\
   }\n\
 };\n\
-//@ sourceURL=component-bind/index.js"
+\n\
+//# sourceURL=components/component/bind/0.0.1/index.js"
 ));
 
-require.register("component-domify/index.js", Function("exports, require, module",
+require.modules["component-bind"] = require.modules["component~bind@0.0.1"];
+require.modules["component~bind"] = require.modules["component~bind@0.0.1"];
+require.modules["bind"] = require.modules["component~bind@0.0.1"];
+
+
+require.register("component~domify@1.2.2", Function("exports, module",
 "\n\
 /**\n\
  * Expose `parse`.\n\
@@ -367,9 +241,16 @@ function parse(html) {\n\
 \n\
   return fragment;\n\
 }\n\
-//@ sourceURL=component-domify/index.js"
+\n\
+//# sourceURL=components/component/domify/1.2.2/index.js"
 ));
-require.register("component-autoscale-canvas/index.js", Function("exports, require, module",
+
+require.modules["component-domify"] = require.modules["component~domify@1.2.2"];
+require.modules["component~domify"] = require.modules["component~domify@1.2.2"];
+require.modules["domify"] = require.modules["component~domify@1.2.2"];
+
+
+require.register("component~autoscale-canvas@0.0.3", Function("exports, module",
 "\n\
 /**\n\
  * Retina-enable the given `canvas`.\n\
@@ -390,9 +271,16 @@ module.exports = function(canvas){\n\
     ctx.scale(ratio, ratio);\n\
   }\n\
   return canvas;\n\
-};//@ sourceURL=component-autoscale-canvas/index.js"
+};\n\
+//# sourceURL=components/component/autoscale-canvas/0.0.3/index.js"
 ));
-require.register("danzajdband-random/index.js", Function("exports, require, module",
+
+require.modules["component-autoscale-canvas"] = require.modules["component~autoscale-canvas@0.0.3"];
+require.modules["component~autoscale-canvas"] = require.modules["component~autoscale-canvas@0.0.3"];
+require.modules["autoscale-canvas"] = require.modules["component~autoscale-canvas@0.0.3"];
+
+
+require.register("danzajdband~random@master", Function("exports, module",
 "\n\
 module.exports = function(min, max, truncate) {\n\
   min = min || 0;\n\
@@ -403,9 +291,16 @@ module.exports = function(min, max, truncate) {\n\
   \n\
   return Math.random() * (max - min) + min;\n\
 };\n\
-//@ sourceURL=danzajdband-random/index.js"
+\n\
+//# sourceURL=components/danzajdband/random/master/index.js"
 ));
-require.register("visionmedia-mocha/mocha.js", Function("exports, require, module",
+
+require.modules["danzajdband-random"] = require.modules["danzajdband~random@master"];
+require.modules["danzajdband~random"] = require.modules["danzajdband~random@master"];
+require.modules["random"] = require.modules["danzajdband~random@master"];
+
+
+require.register("visionmedia~mocha@1.18.2", Function("exports, module",
 ";(function(){\n\
 \n\
 // CommonJS require()\n\
@@ -1244,7 +1139,7 @@ require.register(\"hook.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Runnable = require('./runnable');\n\
+var Runnable = require(\"./runnable\");\n\
 \n\
 /**\n\
  * Expose `Hook`.\n\
@@ -1301,9 +1196,9 @@ require.register(\"interfaces/bdd.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Suite = require('../suite')\n\
-  , Test = require('../test')\n\
-  , utils = require('../utils');\n\
+var Suite = require(\"../suite\")\n\
+  , Test = require(\"../test\")\n\
+  , utils = require(\"../utils\");\n\
 \n\
 /**\n\
  * BDD-style interface:\n\
@@ -1331,32 +1226,32 @@ module.exports = function(suite){\n\
      * Execute before running tests.\n\
      */\n\
 \n\
-    context.before = function(fn){\n\
-      suites[0].beforeAll(fn);\n\
+    context.before = function(name, fn){\n\
+      suites[0].beforeAll(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute after running tests.\n\
      */\n\
 \n\
-    context.after = function(fn){\n\
-      suites[0].afterAll(fn);\n\
+    context.after = function(name, fn){\n\
+      suites[0].afterAll(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute before each test case.\n\
      */\n\
 \n\
-    context.beforeEach = function(fn){\n\
-      suites[0].beforeEach(fn);\n\
+    context.beforeEach = function(name, fn){\n\
+      suites[0].beforeEach(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute after each test case.\n\
      */\n\
 \n\
-    context.afterEach = function(fn){\n\
-      suites[0].afterEach(fn);\n\
+    context.afterEach = function(name, fn){\n\
+      suites[0].afterEach(name, fn);\n\
     };\n\
 \n\
     /**\n\
@@ -1442,8 +1337,8 @@ require.register(\"interfaces/exports.js\", function(module, exports, require){\
  * Module dependencies.\n\
  */\n\
 \n\
-var Suite = require('../suite')\n\
-  , Test = require('../test');\n\
+var Suite = require(\"../suite\")\n\
+  , Test = require(\"../test\");\n\
 \n\
 /**\n\
  * TDD-style interface:\n\
@@ -1502,10 +1397,10 @@ module.exports = function(suite){\n\
 \n\
 require.register(\"interfaces/index.js\", function(module, exports, require){\n\
 \n\
-exports.bdd = require('./bdd');\n\
-exports.tdd = require('./tdd');\n\
-exports.qunit = require('./qunit');\n\
-exports.exports = require('./exports');\n\
+exports.bdd = require(\"./bdd\");\n\
+exports.tdd = require(\"./tdd\");\n\
+exports.qunit = require(\"./qunit\");\n\
+exports.exports = require(\"./exports\");\n\
 \n\
 }); // module: interfaces/index.js\n\
 \n\
@@ -1515,9 +1410,9 @@ require.register(\"interfaces/qunit.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Suite = require('../suite')\n\
-  , Test = require('../test')\n\
-  , utils = require('../utils');\n\
+var Suite = require(\"../suite\")\n\
+  , Test = require(\"../test\")\n\
+  , utils = require(\"../utils\");\n\
 \n\
 /**\n\
  * QUnit-style interface:\n\
@@ -1553,32 +1448,32 @@ module.exports = function(suite){\n\
      * Execute before running tests.\n\
      */\n\
 \n\
-    context.before = function(fn){\n\
-      suites[0].beforeAll(fn);\n\
+    context.before = function(name, fn){\n\
+      suites[0].beforeAll(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute after running tests.\n\
      */\n\
 \n\
-    context.after = function(fn){\n\
-      suites[0].afterAll(fn);\n\
+    context.after = function(name, fn){\n\
+      suites[0].afterAll(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute before each test case.\n\
      */\n\
 \n\
-    context.beforeEach = function(fn){\n\
-      suites[0].beforeEach(fn);\n\
+    context.beforeEach = function(name, fn){\n\
+      suites[0].beforeEach(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute after each test case.\n\
      */\n\
 \n\
-    context.afterEach = function(fn){\n\
-      suites[0].afterEach(fn);\n\
+    context.afterEach = function(name, fn){\n\
+      suites[0].afterEach(name, fn);\n\
     };\n\
 \n\
     /**\n\
@@ -1641,9 +1536,9 @@ require.register(\"interfaces/tdd.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Suite = require('../suite')\n\
-  , Test = require('../test')\n\
-  , utils = require('../utils');;\n\
+var Suite = require(\"../suite\")\n\
+  , Test = require(\"../test\")\n\
+  , utils = require(\"../utils\");;\n\
 \n\
 /**\n\
  * TDD-style interface:\n\
@@ -1679,32 +1574,32 @@ module.exports = function(suite){\n\
      * Execute before each test case.\n\
      */\n\
 \n\
-    context.setup = function(fn){\n\
-      suites[0].beforeEach(fn);\n\
+    context.setup = function(name, fn){\n\
+      suites[0].beforeEach(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute after each test case.\n\
      */\n\
 \n\
-    context.teardown = function(fn){\n\
-      suites[0].afterEach(fn);\n\
+    context.teardown = function(name, fn){\n\
+      suites[0].afterEach(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute before the suite.\n\
      */\n\
 \n\
-    context.suiteSetup = function(fn){\n\
-      suites[0].beforeAll(fn);\n\
+    context.suiteSetup = function(name, fn){\n\
+      suites[0].beforeAll(name, fn);\n\
     };\n\
 \n\
     /**\n\
      * Execute after the suite.\n\
      */\n\
 \n\
-    context.suiteTeardown = function(fn){\n\
-      suites[0].afterAll(fn);\n\
+    context.suiteTeardown = function(name, fn){\n\
+      suites[0].afterAll(name, fn);\n\
     };\n\
 \n\
     /**\n\
@@ -1788,8 +1683,8 @@ require.register(\"mocha.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var path = require('browser/path')\n\
-  , utils = require('./utils');\n\
+var path = require(\"browser/path\")\n\
+  , utils = require(\"./utils\");\n\
 \n\
 /**\n\
  * Expose `Mocha`.\n\
@@ -1802,14 +1697,14 @@ exports = module.exports = Mocha;\n\
  */\n\
 \n\
 exports.utils = utils;\n\
-exports.interfaces = require('./interfaces');\n\
-exports.reporters = require('./reporters');\n\
-exports.Runnable = require('./runnable');\n\
-exports.Context = require('./context');\n\
-exports.Runner = require('./runner');\n\
-exports.Suite = require('./suite');\n\
-exports.Hook = require('./hook');\n\
-exports.Test = require('./test');\n\
+exports.interfaces = require(\"./interfaces\");\n\
+exports.reporters = require(\"./reporters\");\n\
+exports.Runnable = require(\"./runnable\");\n\
+exports.Context = require(\"./context\");\n\
+exports.Runner = require(\"./runner\");\n\
+exports.Suite = require(\"./suite\");\n\
+exports.Hook = require(\"./hook\");\n\
+exports.Test = require(\"./test\");\n\
 \n\
 /**\n\
  * Return image `name` path.\n\
@@ -1962,7 +1857,7 @@ Mocha.prototype.loadFiles = function(fn){\n\
  */\n\
 \n\
 Mocha.prototype._growl = function(runner, reporter) {\n\
-  var notify = require('growl');\n\
+  var notify = require(\"growl\");\n\
 \n\
   runner.on('end', function(){\n\
     var stats = reporter.stats;\n\
@@ -2136,8 +2031,9 @@ Mocha.prototype.run = function(fn){\n\
   if (this.files.length) this.loadFiles();\n\
   var suite = this.suite;\n\
   var options = this.options;\n\
+  options.files = this.files;\n\
   var runner = new exports.Runner(suite);\n\
-  var reporter = new this._reporter(runner);\n\
+  var reporter = new this._reporter(runner, options);\n\
   runner.ignoreLeaks = false !== options.ignoreLeaks;\n\
   runner.asyncOnly = options.asyncOnly;\n\
   if (options.grep) runner.grep(options.grep, options.invert);\n\
@@ -2269,10 +2165,10 @@ require.register(\"reporters/base.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var tty = require('browser/tty')\n\
-  , diff = require('browser/diff')\n\
-  , ms = require('../ms')\n\
-  , utils = require('../utils');\n\
+var tty = require(\"browser/tty\")\n\
+  , diff = require(\"browser/diff\")\n\
+  , ms = require(\"../ms\")\n\
+  , utils = require(\"../utils\");\n\
 \n\
 /**\n\
  * Save timer references to avoid Sinon interfering (see GH-237).\n\
@@ -2802,8 +2698,8 @@ require.register(\"reporters/doc.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
-  , utils = require('../utils');\n\
+var Base = require(\"./base\")\n\
+  , utils = require(\"../utils\");\n\
 \n\
 /**\n\
  * Expose `Doc`.\n\
@@ -2862,7 +2758,7 @@ require.register(\"reporters/dot.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , color = Base.color;\n\
 \n\
 /**\n\
@@ -2934,8 +2830,8 @@ require.register(\"reporters/html-cov.js\", function(module, exports, require){\
  * Module dependencies.\n\
  */\n\
 \n\
-var JSONCov = require('./json-cov')\n\
-  , fs = require('browser/fs');\n\
+var JSONCov = require(\"./json-cov\")\n\
+  , fs = require(\"browser/fs\");\n\
 \n\
 /**\n\
  * Expose `HTMLCov`.\n\
@@ -2951,7 +2847,7 @@ exports = module.exports = HTMLCov;\n\
  */\n\
 \n\
 function HTMLCov(runner) {\n\
-  var jade = require('jade')\n\
+  var jade = require(\"jade\")\n\
     , file = __dirname + '/templates/coverage.jade'\n\
     , str = fs.readFileSync(file, 'utf8')\n\
     , fn = jade.compile(str, { filename: file })\n\
@@ -2988,9 +2884,9 @@ require.register(\"reporters/html.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
-  , utils = require('../utils')\n\
-  , Progress = require('../browser/progress')\n\
+var Base = require(\"./base\")\n\
+  , utils = require(\"../utils\")\n\
+  , Progress = require(\"../browser/progress\")\n\
   , escape = utils.escape;\n\
 \n\
 /**\n\
@@ -3027,7 +2923,7 @@ var statsTemplate = '<ul id=\"mocha-stats\">'\n\
  * @api public\n\
  */\n\
 \n\
-function HTML(runner, root) {\n\
+function HTML(runner) {\n\
   Base.call(this, runner);\n\
 \n\
   var self = this\n\
@@ -3045,8 +2941,7 @@ function HTML(runner, root) {\n\
     , stack = [report]\n\
     , progress\n\
     , ctx\n\
-\n\
-  root = root || document.getElementById('mocha');\n\
+    , root = document.getElementById('mocha');\n\
 \n\
   if (canvas.getContext) {\n\
     var ratio = window.devicePixelRatio || 1;\n\
@@ -3264,23 +3159,23 @@ function on(el, event, fn) {\n\
 \n\
 require.register(\"reporters/index.js\", function(module, exports, require){\n\
 \n\
-exports.Base = require('./base');\n\
-exports.Dot = require('./dot');\n\
-exports.Doc = require('./doc');\n\
-exports.TAP = require('./tap');\n\
-exports.JSON = require('./json');\n\
-exports.HTML = require('./html');\n\
-exports.List = require('./list');\n\
-exports.Min = require('./min');\n\
-exports.Spec = require('./spec');\n\
-exports.Nyan = require('./nyan');\n\
-exports.XUnit = require('./xunit');\n\
-exports.Markdown = require('./markdown');\n\
-exports.Progress = require('./progress');\n\
-exports.Landing = require('./landing');\n\
-exports.JSONCov = require('./json-cov');\n\
-exports.HTMLCov = require('./html-cov');\n\
-exports.JSONStream = require('./json-stream');\n\
+exports.Base = require(\"./base\");\n\
+exports.Dot = require(\"./dot\");\n\
+exports.Doc = require(\"./doc\");\n\
+exports.TAP = require(\"./tap\");\n\
+exports.JSON = require(\"./json\");\n\
+exports.HTML = require(\"./html\");\n\
+exports.List = require(\"./list\");\n\
+exports.Min = require(\"./min\");\n\
+exports.Spec = require(\"./spec\");\n\
+exports.Nyan = require(\"./nyan\");\n\
+exports.XUnit = require(\"./xunit\");\n\
+exports.Markdown = require(\"./markdown\");\n\
+exports.Progress = require(\"./progress\");\n\
+exports.Landing = require(\"./landing\");\n\
+exports.JSONCov = require(\"./json-cov\");\n\
+exports.HTMLCov = require(\"./html-cov\");\n\
+exports.JSONStream = require(\"./json-stream\");\n\
 \n\
 }); // module: reporters/index.js\n\
 \n\
@@ -3290,7 +3185,7 @@ require.register(\"reporters/json-cov.js\", function(module, exports, require){\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base');\n\
+var Base = require(\"./base\");\n\
 \n\
 /**\n\
  * Expose `JSONCov`.\n\
@@ -3447,7 +3342,7 @@ require.register(\"reporters/json-stream.js\", function(module, exports, require
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , color = Base.color;\n\
 \n\
 /**\n\
@@ -3511,7 +3406,7 @@ require.register(\"reporters/json.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , cursor = Base.cursor\n\
   , color = Base.color;\n\
 \n\
@@ -3584,7 +3479,7 @@ require.register(\"reporters/landing.js\", function(module, exports, require){\n
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , cursor = Base.cursor\n\
   , color = Base.color;\n\
 \n\
@@ -3693,7 +3588,7 @@ require.register(\"reporters/list.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , cursor = Base.cursor\n\
   , color = Base.color;\n\
 \n\
@@ -3764,8 +3659,8 @@ require.register(\"reporters/markdown.js\", function(module, exports, require){\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
-  , utils = require('../utils');\n\
+var Base = require(\"./base\")\n\
+  , utils = require(\"../utils\");\n\
 \n\
 /**\n\
  * Expose `Markdown`.\n\
@@ -3869,7 +3764,7 @@ require.register(\"reporters/min.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base');\n\
+var Base = require(\"./base\");\n\
 \n\
 /**\n\
  * Expose `Min`.\n\
@@ -3914,7 +3809,7 @@ require.register(\"reporters/nyan.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , color = Base.color;\n\
 \n\
 /**\n\
@@ -4191,7 +4086,7 @@ require.register(\"reporters/progress.js\", function(module, exports, require){\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , cursor = Base.cursor\n\
   , color = Base.color;\n\
 \n\
@@ -4285,7 +4180,7 @@ require.register(\"reporters/spec.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , cursor = Base.cursor\n\
   , color = Base.color;\n\
 \n\
@@ -4376,7 +4271,7 @@ require.register(\"reporters/tap.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
+var Base = require(\"./base\")\n\
   , cursor = Base.cursor\n\
   , color = Base.color;\n\
 \n\
@@ -4453,8 +4348,8 @@ require.register(\"reporters/xunit.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Base = require('./base')\n\
-  , utils = require('../utils')\n\
+var Base = require(\"./base\")\n\
+  , utils = require(\"../utils\")\n\
   , escape = utils.escape;\n\
 \n\
 /**\n\
@@ -4580,9 +4475,9 @@ require.register(\"runnable.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var EventEmitter = require('browser/events').EventEmitter\n\
-  , debug = require('browser/debug')('mocha:runnable')\n\
-  , milliseconds = require('./ms');\n\
+var EventEmitter = require(\"browser/events\").EventEmitter\n\
+  , debug = require(\"browser/debug\")('mocha:runnable')\n\
+  , milliseconds = require(\"./ms\");\n\
 \n\
 /**\n\
  * Save timer references to avoid Sinon interfering (see GH-237).\n\
@@ -4749,16 +4644,6 @@ Runnable.prototype.run = function(fn){\n\
 \n\
   if (ctx) ctx.runnable(this);\n\
 \n\
-  // timeout\n\
-  if (this.async) {\n\
-    if (ms) {\n\
-      this.timer = setTimeout(function(){\n\
-        done(new Error('timeout of ' + ms + 'ms exceeded'));\n\
-        self.timedOut = true;\n\
-      }, ms);\n\
-    }\n\
-  }\n\
-\n\
   // called multiple times\n\
   function multiple(err) {\n\
     if (emitted) return;\n\
@@ -4779,8 +4664,10 @@ Runnable.prototype.run = function(fn){\n\
   // for .resetTimeout()\n\
   this.callback = done;\n\
 \n\
-  // async\n\
+  // explicit async with `done` argument\n\
   if (this.async) {\n\
+    this.resetTimeout();\n\
+\n\
     try {\n\
       this.fn.call(ctx, function(err){\n\
         if (err instanceof Error || toString.call(err) === \"[object Error]\") return done(err);\n\
@@ -4797,13 +4684,25 @@ Runnable.prototype.run = function(fn){\n\
     return done(new Error('--async-only option in use without declaring `done()`'));\n\
   }\n\
 \n\
-  // sync\n\
+  // sync or promise-returning\n\
   try {\n\
-    if (!this.pending) this.fn.call(ctx);\n\
-    this.duration = new Date - start;\n\
-    fn();\n\
+    if (this.pending) {\n\
+      done();\n\
+    } else {\n\
+      callFn(this.fn);\n\
+    }\n\
   } catch (err) {\n\
-    fn(err);\n\
+    done(err);\n\
+  }\n\
+\n\
+  function callFn(fn) {\n\
+    var result = fn.call(ctx);\n\
+    if (result && typeof result.then === 'function') {\n\
+      self.resetTimeout();\n\
+      result.then(function(){ done() }, done);\n\
+    } else {\n\
+      done();\n\
+    }\n\
   }\n\
 };\n\
 \n\
@@ -4814,10 +4713,10 @@ require.register(\"runner.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var EventEmitter = require('browser/events').EventEmitter\n\
-  , debug = require('browser/debug')('mocha:runner')\n\
-  , Test = require('./test')\n\
-  , utils = require('./utils')\n\
+var EventEmitter = require(\"browser/events\").EventEmitter\n\
+  , debug = require(\"browser/debug\")('mocha:runner')\n\
+  , Test = require(\"./test\")\n\
+  , utils = require(\"./utils\")\n\
   , filter = utils.filter\n\
   , keys = utils.keys;\n\
 \n\
@@ -5484,11 +5383,11 @@ require.register(\"suite.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var EventEmitter = require('browser/events').EventEmitter\n\
-  , debug = require('browser/debug')('mocha:suite')\n\
-  , milliseconds = require('./ms')\n\
-  , utils = require('./utils')\n\
-  , Hook = require('./hook');\n\
+var EventEmitter = require(\"browser/events\").EventEmitter\n\
+  , debug = require(\"browser/debug\")('mocha:suite')\n\
+  , milliseconds = require(\"./ms\")\n\
+  , utils = require(\"./utils\")\n\
+  , Hook = require(\"./hook\");\n\
 \n\
 /**\n\
  * Expose `Suite`.\n\
@@ -5625,9 +5524,15 @@ Suite.prototype.bail = function(bail){\n\
  * @api private\n\
  */\n\
 \n\
-Suite.prototype.beforeAll = function(fn){\n\
+Suite.prototype.beforeAll = function(title, fn){\n\
   if (this.pending) return this;\n\
-  var hook = new Hook('\"before all\" hook', fn);\n\
+  if ('function' === typeof title) {\n\
+    fn = title;\n\
+    title = fn.name;\n\
+  }\n\
+  title = '\"before all\" hook' + (title ? ': ' + title : '');\n\
+\n\
+  var hook = new Hook(title, fn);\n\
   hook.parent = this;\n\
   hook.timeout(this.timeout());\n\
   hook.slow(this.slow());\n\
@@ -5645,9 +5550,15 @@ Suite.prototype.beforeAll = function(fn){\n\
  * @api private\n\
  */\n\
 \n\
-Suite.prototype.afterAll = function(fn){\n\
+Suite.prototype.afterAll = function(title, fn){\n\
   if (this.pending) return this;\n\
-  var hook = new Hook('\"after all\" hook', fn);\n\
+  if ('function' === typeof title) {\n\
+    fn = title;\n\
+    title = fn.name;\n\
+  }\n\
+  title = '\"after all\" hook' + (title ? ': ' + title : '');\n\
+\n\
+  var hook = new Hook(title, fn);\n\
   hook.parent = this;\n\
   hook.timeout(this.timeout());\n\
   hook.slow(this.slow());\n\
@@ -5665,9 +5576,15 @@ Suite.prototype.afterAll = function(fn){\n\
  * @api private\n\
  */\n\
 \n\
-Suite.prototype.beforeEach = function(fn){\n\
+Suite.prototype.beforeEach = function(title, fn){\n\
   if (this.pending) return this;\n\
-  var hook = new Hook('\"before each\" hook', fn);\n\
+  if ('function' === typeof title) {\n\
+    fn = title;\n\
+    title = fn.name;\n\
+  }\n\
+  title = '\"before each\" hook' + (title ? ': ' + title : '');\n\
+\n\
+  var hook = new Hook(title, fn);\n\
   hook.parent = this;\n\
   hook.timeout(this.timeout());\n\
   hook.slow(this.slow());\n\
@@ -5685,9 +5602,15 @@ Suite.prototype.beforeEach = function(fn){\n\
  * @api private\n\
  */\n\
 \n\
-Suite.prototype.afterEach = function(fn){\n\
+Suite.prototype.afterEach = function(title, fn){\n\
   if (this.pending) return this;\n\
-  var hook = new Hook('\"after each\" hook', fn);\n\
+  if ('function' === typeof title) {\n\
+    fn = title;\n\
+    title = fn.name;\n\
+  }\n\
+  title = '\"after each\" hook' + (title ? ': ' + title : '');\n\
+\n\
+  var hook = new Hook(title, fn);\n\
   hook.parent = this;\n\
   hook.timeout(this.timeout());\n\
   hook.slow(this.slow());\n\
@@ -5788,7 +5711,7 @@ require.register(\"test.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var Runnable = require('./runnable');\n\
+var Runnable = require(\"./runnable\");\n\
 \n\
 /**\n\
  * Expose `Test`.\n\
@@ -5827,10 +5750,10 @@ require.register(\"utils.js\", function(module, exports, require){\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var fs = require('browser/fs')\n\
-  , path = require('browser/path')\n\
+var fs = require(\"browser/fs\")\n\
+  , path = require(\"browser/path\")\n\
   , join = path.join\n\
-  , debug = require('browser/debug')('mocha:watch');\n\
+  , debug = require(\"browser/debug\")('mocha:watch');\n\
 \n\
 /**\n\
  * Ignored directories.\n\
@@ -6188,7 +6111,7 @@ process.on = function(e, fn){\n\
  * Expose mocha.\n\
  */\n\
 \n\
-var Mocha = global.Mocha = require('mocha'),\n\
+var Mocha = global.Mocha = require(\"mocha\"),\n\
     mocha = global.mocha = new Mocha({ reporter: 'html' });\n\
 \n\
 // The BDD UI is registered by default, but no UI will be functional in the\n\
@@ -6281,9 +6204,16 @@ mocha.run = function(fn){\n\
  */\n\
 \n\
 Mocha.process = process;\n\
-})();//@ sourceURL=visionmedia-mocha/mocha.js"
+})();\n\
+//# sourceURL=components/visionmedia/mocha/1.18.2/mocha.js"
 ));
-require.register("techjacker-expect.js/expect.js", Function("exports, require, module",
+
+require.modules["visionmedia-mocha"] = require.modules["visionmedia~mocha@1.18.2"];
+require.modules["visionmedia~mocha"] = require.modules["visionmedia~mocha@1.18.2"];
+require.modules["mocha"] = require.modules["visionmedia~mocha@1.18.2"];
+
+
+require.register("techjacker~expect.js@master", Function("exports, module",
 "(function (global, module) {\n\
 \n\
   var exports = module.exports;\n\
@@ -7586,32 +7516,41 @@ require.register("techjacker-expect.js/expect.js", Function("exports, require, m
     this\n\
   , 'undefined' != typeof module ? module : {exports: {}}\n\
 );\n\
-//@ sourceURL=techjacker-expect.js/expect.js"
+\n\
+//# sourceURL=components/techjacker/expect.js/master/expect.js"
 ));
-require.register("ianstormtaylor-sinon/lib/index.js", Function("exports, require, module",
-"module.exports = require('./sinon');\n\
-module.exports.spy = require(\"./sinon/spy\");\n\
-module.exports.spyCall = require(\"./sinon/call\");\n\
-module.exports.stub = require(\"./sinon/stub\");\n\
-module.exports.mock = require(\"./sinon/mock\");\n\
-module.exports.collection = require(\"./sinon/collection\");\n\
-module.exports.assert = require(\"./sinon/assert\");\n\
-module.exports.sandbox = require(\"./sinon/sandbox\");\n\
-module.exports.test = require(\"./sinon/test\");\n\
-module.exports.testCase = require(\"./sinon/test_case\");\n\
-module.exports.assert = require(\"./sinon/assert\");\n\
-module.exports.match = require(\"./sinon/match\");\n\
+
+require.modules["techjacker-expect.js"] = require.modules["techjacker~expect.js@master"];
+require.modules["techjacker~expect.js"] = require.modules["techjacker~expect.js@master"];
+require.modules["expect.js"] = require.modules["techjacker~expect.js@master"];
+
+
+require.register("ianstormtaylor~sinon@master", Function("exports, module",
+"module.exports = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
+module.exports.spy = require(\"ianstormtaylor~sinon@master/lib/sinon/spy.js\");\n\
+module.exports.spyCall = require(\"ianstormtaylor~sinon@master/lib/sinon/call.js\");\n\
+module.exports.stub = require(\"ianstormtaylor~sinon@master/lib/sinon/stub.js\");\n\
+module.exports.mock = require(\"ianstormtaylor~sinon@master/lib/sinon/mock.js\");\n\
+module.exports.collection = require(\"ianstormtaylor~sinon@master/lib/sinon/collection.js\");\n\
+module.exports.assert = require(\"ianstormtaylor~sinon@master/lib/sinon/assert.js\");\n\
+module.exports.sandbox = require(\"ianstormtaylor~sinon@master/lib/sinon/sandbox.js\");\n\
+module.exports.test = require(\"ianstormtaylor~sinon@master/lib/sinon/test.js\");\n\
+module.exports.testCase = require(\"ianstormtaylor~sinon@master/lib/sinon/test_case.js\");\n\
+module.exports.assert = require(\"ianstormtaylor~sinon@master/lib/sinon/assert.js\");\n\
+module.exports.match = require(\"ianstormtaylor~sinon@master/lib/sinon/match.js\");\n\
 \n\
 // the hacks below are needed for sinon.fakeServer support... this was so\n\
 // tough to get working... this library is like a minefield :(\n\
-module.exports.extend(module.exports, require(\"./sinon/util/event\"));\n\
+module.exports.extend(module.exports, require(\"ianstormtaylor~sinon@master/lib/sinon/util/event.js\"));\n\
 \n\
 module.exports.extend(module.exports,\n\
-    require(\"./sinon/util/fake_xml_http_request\"),\n\
-    require(\"./sinon/util/fake_server\"));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/index.js"
+    require(\"ianstormtaylor~sinon@master/lib/sinon/util/fake_xml_http_request.js\"),\n\
+    require(\"ianstormtaylor~sinon@master/lib/sinon/util/fake_server.js\"));\n\
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/index.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon.js", Function("exports, module",
 "/*jslint eqeqeq: false, onevar: false, forin: true, nomen: false, regexp: false, plusplus: false*/\n\
 /*global module, require, __dirname, document*/\n\
 /**\n\
@@ -7945,9 +7884,11 @@ module.exports = (function (buster) {\n\
 \n\
     return sinon;\n\
 }(typeof buster == \"object\" && buster));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/assert.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/assert.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend stub.js\n\
@@ -7970,7 +7911,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/assert.js", Function("exports, 
     var assert;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -8131,9 +8072,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/assert.js", Function("exports, 
         sinon.assert = assert;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null, typeof window != \"undefined\" ? window : (typeof self != \"undefined\") ? self : global));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/assert.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/assert.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/call.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/call.js", Function("exports, module",
 "/**\n\
   * @depend ../sinon.js\n\
   * @depend match.js\n\
@@ -8155,7 +8098,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/call.js", Function("exports, re
 (function (sinon) {\n\
     var commonJSModule = typeof module !== 'undefined' && module.exports;\n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -8337,9 +8280,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/call.js", Function("exports, re
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
 \n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/call.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/call.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/collection.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/collection.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend stub.js\n\
@@ -8363,7 +8308,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/collection.js", Function("expor
     var hasOwnProperty = Object.prototype.hasOwnProperty;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -8493,9 +8438,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/collection.js", Function("expor
         sinon.collection = collection;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/collection.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/collection.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/match.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/match.js", Function("exports, module",
 "/* @depend ../sinon.js */\n\
 /*jslint eqeqeq: false, onevar: false, plusplus: false*/\n\
 /*global module, require, sinon*/\n\
@@ -8513,7 +8460,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/match.js", Function("exports, r
     var commonJSModule = typeof module !== 'undefined' && module.exports;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -8735,9 +8682,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/match.js", Function("exports, r
         sinon.match = match;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/match.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/match.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/mock.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/mock.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend stub.js\n\
@@ -8759,7 +8708,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/mock.js", Function("exports, re
     var push = [].push;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -9165,9 +9114,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/mock.js", Function("exports, re
         sinon.mock = mock;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/mock.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/mock.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/sandbox.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/sandbox.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend collection.js\n\
@@ -9188,8 +9139,8 @@ require.register("ianstormtaylor-sinon/lib/sinon/sandbox.js", Function("exports,
 \"use strict\";\n\
 \n\
 if (typeof module !== 'undefined' && module.exports) {\n\
-    var sinon = require(\"../sinon\");\n\
-    sinon.extend(sinon, require(\"./util/fake_timers\"));\n\
+    var sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
+    sinon.extend(sinon, require(\"ianstormtaylor~sinon@master/lib/sinon/util/fake_timers.js\"));\n\
 }\n\
 \n\
 (function () {\n\
@@ -9293,9 +9244,11 @@ if (typeof module !== 'undefined' && module.exports) {\n\
         module.exports = sinon.sandbox;\n\
     }\n\
 }());\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/sandbox.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/sandbox.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/spy.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/spy.js", Function("exports, module",
 "/**\n\
   * @depend ../sinon.js\n\
   * @depend call.js\n\
@@ -9319,7 +9272,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/spy.js", Function("exports, req
     var callId = 0;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -9691,9 +9644,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/spy.js", Function("exports, req
         sinon.spy = spy;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/spy.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/spy.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/stub.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/stub.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend spy.js\n\
@@ -9714,7 +9669,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/stub.js", Function("exports, re
     var commonJSModule = typeof module !== 'undefined' && module.exports;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -10065,9 +10020,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/stub.js", Function("exports, re
         sinon.stub = stub;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/stub.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/stub.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/test.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/test.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend stub.js\n\
@@ -10090,7 +10047,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/test.js", Function("exports, re
     var commonJSModule = typeof module !== 'undefined' && module.exports;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon) {\n\
@@ -10143,9 +10100,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/test.js", Function("exports, re
         sinon.test = test;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/test.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/test.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/test_case.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/test_case.js", Function("exports, module",
 "/**\n\
  * @depend ../sinon.js\n\
  * @depend test.js\n\
@@ -10166,7 +10125,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/test_case.js", Function("export
     var commonJSModule = typeof module !== 'undefined' && module.exports;\n\
 \n\
     if (!sinon && commonJSModule) {\n\
-        sinon = require(\"../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     }\n\
 \n\
     if (!sinon || !Object.prototype.hasOwnProperty) {\n\
@@ -10243,9 +10202,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/test_case.js", Function("export
         sinon.testCase = testCase;\n\
     }\n\
 }(typeof sinon == \"object\" && sinon || null));\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/test_case.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/test_case.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/event.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/event.js", Function("exports, module",
 "/*jslint eqeqeq: false, onevar: false*/\n\
 /*global sinon, module, require, ActiveXObject, XMLHttpRequest, DOMParser*/\n\
 /**\n\
@@ -10325,9 +10286,11 @@ if (typeof sinon == \"undefined\") {\n\
 if (typeof module !== 'undefined' && module.exports) {\n\
     module.exports = sinon;\n\
 }\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/event.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/event.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/fake_server.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/fake_server.js", Function("exports, module",
 "/**\n\
  * @depend fake_xml_http_request.js\n\
  */\n\
@@ -10347,7 +10310,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/util/fake_server.js", Function(
 \"use strict\";\n\
 \n\
 if (typeof sinon == \"undefined\") {\n\
-    var sinon = require(\"../../sinon\");\n\
+    var sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
 }\n\
 \n\
 sinon.fakeServer = (function () {\n\
@@ -10546,9 +10509,11 @@ sinon.fakeServer = (function () {\n\
 if (typeof module !== 'undefined' && module.exports) {\n\
     module.exports = sinon;\n\
 }\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/fake_server.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/fake_server.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/fake_server_with_clock.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/fake_server_with_clock.js", Function("exports, module",
 "/**\n\
  * @depend fake_server.js\n\
  * @depend fake_timers.js\n\
@@ -10632,9 +10597,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/util/fake_server_with_clock.js"
         return sinon.fakeServer.restore.apply(this, arguments);\n\
     };\n\
 }());\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/fake_server_with_clock.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/fake_server_with_clock.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/fake_timers.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/fake_timers.js", Function("exports, module",
 "/*jslint eqeqeq: false, plusplus: false, evil: true, onevar: false, browser: true, forin: false*/\n\
 /*global module, require, window*/\n\
 /**\n\
@@ -10986,9 +10953,11 @@ sinon.timers = {\n\
 if (typeof module !== 'undefined' && module.exports) {\n\
     module.exports = sinon;\n\
 }\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/fake_timers.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/fake_timers.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/fake_xml_http_request.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/fake_xml_http_request.js", Function("exports, module",
 "/**\n\
  * @depend ../../sinon.js\n\
  * @depend event.js\n\
@@ -11010,7 +10979,7 @@ require.register("ianstormtaylor-sinon/lib/sinon/util/fake_xml_http_request.js",
     var sinon;\n\
 \n\
     if (typeof module !== 'undefined' && module.exports) {\n\
-        sinon = require(\"../../sinon\");\n\
+        sinon = require(\"ianstormtaylor~sinon@master/lib/sinon.js\");\n\
     } else if (typeof sinon === \"undefined\") {\n\
         sinon = {};\n\
     }\n\
@@ -11500,9 +11469,11 @@ require.register("ianstormtaylor-sinon/lib/sinon/util/fake_xml_http_request.js",
 if (typeof module !== 'undefined' && module.exports) {\n\
     module.exports = sinon;\n\
 }\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/fake_xml_http_request.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/fake_xml_http_request.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/timers_ie.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/timers_ie.js", Function("exports, module",
 "/*global sinon, setTimeout, setInterval, clearTimeout, clearInterval, Date*/\n\
 /**\n\
  * Helps IE run the fake timers. By defining global functions, IE allows\n\
@@ -11530,9 +11501,11 @@ clearTimeout = sinon.timers.clearTimeout;\n\
 setInterval = sinon.timers.setInterval;\n\
 clearInterval = sinon.timers.clearInterval;\n\
 Date = sinon.timers.Date;\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/timers_ie.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/timers_ie.js"
 ));
-require.register("ianstormtaylor-sinon/lib/sinon/util/xhr_ie.js", Function("exports, require, module",
+
+require.register("ianstormtaylor~sinon@master/lib/sinon/util/xhr_ie.js", Function("exports, module",
 "/*global sinon*/\n\
 /**\n\
  * Helps IE run the fake XMLHttpRequest. By defining global functions, IE allows\n\
@@ -11552,16 +11525,23 @@ function XMLHttpRequest() {}\n\
 // Reassign the original function. Now its writable attribute\n\
 // should be true. Hackish, I know, but it works.\n\
 XMLHttpRequest = sinon.xhr.XMLHttpRequest || undefined;\n\
-//@ sourceURL=ianstormtaylor-sinon/lib/sinon/util/xhr_ie.js"
+\n\
+//# sourceURL=components/ianstormtaylor/sinon/master/lib/sinon/util/xhr_ie.js"
 ));
-require.register("realtime-bar-graph/index.js", Function("exports, require, module",
+
+require.modules["ianstormtaylor-sinon"] = require.modules["ianstormtaylor~sinon@master"];
+require.modules["ianstormtaylor~sinon"] = require.modules["ianstormtaylor~sinon@master"];
+require.modules["sinon"] = require.modules["ianstormtaylor~sinon@master"];
+
+
+require.register("realtime-bar-graph", Function("exports, module",
 "'use strict';\n\
 \n\
-var raf = require('raf');\n\
-var bind = require('bind');\n\
-var domify = require('domify');\n\
-var template = require('./template.html');\n\
-var autoscale = require('autoscale-canvas');\n\
+var raf = require(\"component~raf@1.1.3\");\n\
+var bind = require(\"component~bind@0.0.1\");\n\
+var domify = require(\"component~domify@1.2.2\");\n\
+var template = require(\"realtime-bar-graph/template.html\");\n\
+var autoscale = require(\"component~autoscale-canvas@0.0.3\");\n\
 \n\
 /**\n\
  * Expose `RealtimeBarGraph`.\n\
@@ -11964,81 +11944,13 @@ RealtimeBarGraph.prototype.drawRightYAxis = function(points){\n\
 \n\
 RealtimeBarGraph.prototype.addHit = function(){\n\
   this.buffer++;\n\
-};//@ sourceURL=realtime-bar-graph/index.js"
+};\n\
+//# sourceURL=index.js"
 ));
 
+require.define("realtime-bar-graph/template.html", "<div class=\"rtbg\">\n  <canvas class=\"rtbg-background\"></canvas>\n  <canvas class=\"rtbg-history\"></canvas>\n</div>");
+
+require.modules["realtime-bar-graph"] = require.modules["realtime-bar-graph"];
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-require.register("realtime-bar-graph/template.html", Function("exports, require, module",
-"module.exports = '<div class=\"rtbg\">\\n\
-  <canvas class=\"rtbg-background\"></canvas>\\n\
-  <canvas class=\"rtbg-history\"></canvas>\\n\
-</div>';//@ sourceURL=realtime-bar-graph/template.html"
-));
-require.alias("component-raf/index.js", "realtime-bar-graph/deps/raf/index.js");
-require.alias("component-raf/index.js", "raf/index.js");
-
-require.alias("kenany-isinteger/index.js", "realtime-bar-graph/deps/isInteger/index.js");
-require.alias("kenany-isinteger/index.js", "isInteger/index.js");
-
-require.alias("component-bind/index.js", "realtime-bar-graph/deps/bind/index.js");
-require.alias("component-bind/index.js", "bind/index.js");
-
-
-require.alias("component-domify/index.js", "realtime-bar-graph/deps/domify/index.js");
-require.alias("component-domify/index.js", "domify/index.js");
-
-require.alias("component-autoscale-canvas/index.js", "realtime-bar-graph/deps/autoscale-canvas/index.js");
-require.alias("component-autoscale-canvas/index.js", "autoscale-canvas/index.js");
-
-require.alias("danzajdband-random/index.js", "realtime-bar-graph/deps/random/index.js");
-require.alias("danzajdband-random/index.js", "random/index.js");
-
-require.alias("visionmedia-mocha/mocha.js", "realtime-bar-graph/deps/mocha/mocha.js");
-require.alias("visionmedia-mocha/mocha.js", "realtime-bar-graph/deps/mocha/index.js");
-require.alias("visionmedia-mocha/mocha.js", "mocha/index.js");
-require.alias("visionmedia-mocha/mocha.js", "visionmedia-mocha/index.js");
-require.alias("techjacker-expect.js/expect.js", "realtime-bar-graph/deps/expect.js/expect.js");
-require.alias("techjacker-expect.js/expect.js", "realtime-bar-graph/deps/expect.js/index.js");
-require.alias("techjacker-expect.js/expect.js", "expect.js/index.js");
-require.alias("techjacker-expect.js/expect.js", "techjacker-expect.js/index.js");
-require.alias("ianstormtaylor-sinon/lib/index.js", "realtime-bar-graph/deps/sinon/lib/index.js");
-require.alias("ianstormtaylor-sinon/lib/sinon.js", "realtime-bar-graph/deps/sinon/lib/sinon.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/assert.js", "realtime-bar-graph/deps/sinon/lib/sinon/assert.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/call.js", "realtime-bar-graph/deps/sinon/lib/sinon/call.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/collection.js", "realtime-bar-graph/deps/sinon/lib/sinon/collection.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/match.js", "realtime-bar-graph/deps/sinon/lib/sinon/match.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/mock.js", "realtime-bar-graph/deps/sinon/lib/sinon/mock.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/sandbox.js", "realtime-bar-graph/deps/sinon/lib/sinon/sandbox.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/spy.js", "realtime-bar-graph/deps/sinon/lib/sinon/spy.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/stub.js", "realtime-bar-graph/deps/sinon/lib/sinon/stub.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/test.js", "realtime-bar-graph/deps/sinon/lib/sinon/test.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/test_case.js", "realtime-bar-graph/deps/sinon/lib/sinon/test_case.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/event.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/event.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/fake_server.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/fake_server.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/fake_server_with_clock.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/fake_server_with_clock.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/fake_timers.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/fake_timers.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/fake_xml_http_request.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/fake_xml_http_request.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/timers_ie.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/timers_ie.js");
-require.alias("ianstormtaylor-sinon/lib/sinon/util/xhr_ie.js", "realtime-bar-graph/deps/sinon/lib/sinon/util/xhr_ie.js");
-require.alias("ianstormtaylor-sinon/lib/index.js", "realtime-bar-graph/deps/sinon/index.js");
-require.alias("ianstormtaylor-sinon/lib/index.js", "sinon/index.js");
-require.alias("ianstormtaylor-sinon/lib/index.js", "ianstormtaylor-sinon/index.js");
-require.alias("realtime-bar-graph/index.js", "realtime-bar-graph/index.js");
+require("realtime-bar-graph")
