@@ -1,0 +1,14 @@
+.skyline {
+  position: relative;
+  width: 780px;
+  height: 280px;
+  -moz-box-sizing: border-box;
+       box-sizing: border-box;
+}
+
+.skyline-background,
+.skyline-history {
+  position: absolute;
+  top: 0;
+  left: 0;
+}

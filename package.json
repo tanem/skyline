@@ -1,9 +1,9 @@
 {
-  "name": "realtime-bar-graph",
+  "name": "skyline",
   "description": "A bar graph that displays information in real time using canvas.",
   "repository" : {
     "type" : "git",
-    "url" : "git://github.com/tanem/realtime-bar-graph.git"
+    "url" : "git://github.com/tanem/skyline.git"
   },
   "devDependencies": {
     "mocha": "*"
@@ -22,7 +22,7 @@
     ],
     "scripts": [
       "build/build.js",
-      "test/realtime-bar-graph.spec.js"
+      "test/skyline.spec.js"
     ]
   }
 }

@@ -1,40 +1,22 @@
+
 ;(function(){
 
 /**
- * Require the given path.
+ * Require the module at `name`.
  *
- * @param {String} path
+ * @param {String} name
  * @return {Object} exports
  * @api public
  */
 
-function require(path, parent, orig) {
-  var resolved = require.resolve(path);
+function require(name) {
+  var module = require.modules[name];
+  if (!module) throw new Error('failed to require "' + name + '"');
 
-  // lookup failed
-  if (null == resolved) {
-    orig = orig || path;
-    parent = parent || 'root';
-    var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
-    err.path = orig;
-    err.parent = parent;
-    err.require = true;
-    throw err;
-  }
-
-  var module = require.modules[resolved];
-
-  // perform real require()
-  // by invoking the module's
-  // registered function
-  if (!module._resolving && !module.exports) {
-    var mod = {};
-    mod.exports = {};
-    mod.client = mod.component = true;
-    module._resolving = true;
-    module.call(this, mod.exports, require.relative(resolved), mod);
-    delete module._resolving;
-    module.exports = mod.exports;
+  if (!('exports' in module) && typeof module.definition === 'function') {
+    module.client = module.component = true;
+    module.definition.call(this, module.exports = {}, module);
+    delete module.definition;
   }
 
   return module.exports;
@@ -47,160 +29,33 @@ function require(path, parent, orig) {
 require.modules = {};
 
 /**
- * Registered aliases.
- */
-
-require.aliases = {};
-
-/**
- * Resolve `path`.
+ * Register module at `name` with callback `definition`.
  *
- * Lookup:
- *
- *   - PATH/index.js
- *   - PATH.js
- *   - PATH
- *
- * @param {String} path
- * @return {String} path or null
- * @api private
- */
-
-require.resolve = function(path) {
-  if (path.charAt(0) === '/') path = path.slice(1);
-
-  var paths = [
-    path,
-    path + '.js',
-    path + '.json',
-    path + '/index.js',
-    path + '/index.json'
-  ];
-
-  for (var i = 0; i < paths.length; i++) {
-    var path = paths[i];
-    if (require.modules.hasOwnProperty(path)) return path;
-    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
-  }
-};
-
-/**
- * Normalize `path` relative to the current path.
- *
- * @param {String} curr
- * @param {String} path
- * @return {String}
- * @api private
- */
-
-require.normalize = function(curr, path) {
-  var segs = [];
-
-  if ('.' != path.charAt(0)) return path;
-
-  curr = curr.split('/');
-  path = path.split('/');
-
-  for (var i = 0; i < path.length; ++i) {
-    if ('..' == path[i]) {
-      curr.pop();
-    } else if ('.' != path[i] && '' != path[i]) {
-      segs.push(path[i]);
-    }
-  }
-
-  return curr.concat(segs).join('/');
-};
-
-/**
- * Register module at `path` with callback `definition`.
- *
- * @param {String} path
+ * @param {String} name
  * @param {Function} definition
  * @api private
  */
 
-require.register = function(path, definition) {
-  require.modules[path] = definition;
+require.register = function (name, definition) {
+  require.modules[name] = {
+    definition: definition
+  };
 };
 
 /**
- * Alias a module definition.
+ * Define a module's exports immediately with `exports`.
  *
- * @param {String} from
- * @param {String} to
+ * @param {String} name
+ * @param {Generic} exports
  * @api private
  */
 
-require.alias = function(from, to) {
-  if (!require.modules.hasOwnProperty(from)) {
-    throw new Error('Failed to alias "' + from + '", it does not exist');
-  }
-  require.aliases[to] = from;
-};
-
-/**
- * Return a require function relative to the `parent` path.
- *
- * @param {String} parent
- * @return {Function}
- * @api private
- */
-
-require.relative = function(parent) {
-  var p = require.normalize(parent, '..');
-
-  /**
-   * lastIndexOf helper.
-   */
-
-  function lastIndexOf(arr, obj) {
-    var i = arr.length;
-    while (i--) {
-      if (arr[i] === obj) return i;
-    }
-    return -1;
-  }
-
-  /**
-   * The relative require() itself.
-   */
-
-  function localRequire(path) {
-    var resolved = localRequire.resolve(path);
-    return require(resolved, parent, path);
-  }
-
-  /**
-   * Resolve relative to the parent.
-   */
-
-  localRequire.resolve = function(path) {
-    var c = path.charAt(0);
-    if ('/' == c) return path.slice(1);
-    if ('.' == c) return require.normalize(p, path);
-
-    // resolve deps by returning
-    // the dep in the nearest "deps"
-    // directory
-    var segs = parent.split('/');
-    var i = lastIndexOf(segs, 'deps') + 1;
-    if (!i) i = 0;
-    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-    return path;
+require.define = function (name, exports) {
+  require.modules[name] = {
+    exports: exports
   };
-
-  /**
-   * Check if module is defined at `path`.
-   */
-
-  localRequire.exists = function(path) {
-    return require.modules.hasOwnProperty(localRequire.resolve(path));
-  };
-
-  return localRequire;
 };
-require.register("component-raf/index.js", function(exports, require, module){
+require.register("component~raf@1.1.3", function (exports, module) {
 /**
  * Expose `requestAnimationFrame()`.
  */
@@ -241,7 +96,8 @@ exports.cancel = function(id){
 };
 
 });
-require.register("kenany-isinteger/index.js", function(exports, require, module){
+
+require.register("kenany~isinteger@1.0.4", function (exports, module) {
 /**
  * Check if a Number is an integer
  *
@@ -253,7 +109,9 @@ module.exports = function(x) {
   return (x === Math.round(x));
 };
 });
-require.register("component-bind/index.js", function(exports, require, module){
+
+require.register("component~bind@0.0.1", function (exports, module) {
+
 /**
  * Slice reference.
  */
@@ -272,7 +130,7 @@ var slice = [].slice;
 module.exports = function(obj, fn){
   if ('string' == typeof fn) fn = obj[fn];
   if ('function' != typeof fn) throw new Error('bind() requires a function');
-  var args = slice.call(arguments, 2);
+  var args = [].slice.call(arguments, 2);
   return function(){
     return fn.apply(obj, args.concat(slice.call(arguments)));
   }
@@ -280,7 +138,7 @@ module.exports = function(obj, fn){
 
 });
 
-require.register("component-domify/index.js", function(exports, require, module){
+require.register("component~domify@1.2.2", function (exports, module) {
 
 /**
  * Expose `parse`.
@@ -370,7 +228,8 @@ function parse(html) {
 }
 
 });
-require.register("component-autoscale-canvas/index.js", function(exports, require, module){
+
+require.register("component~autoscale-canvas@0.0.3", function (exports, module) {
 
 /**
  * Retina-enable the given `canvas`.
@@ -393,28 +252,29 @@ module.exports = function(canvas){
   return canvas;
 };
 });
-require.register("realtime-bar-graph/index.js", function(exports, require, module){
+
+require.register("skyline", function (exports, module) {
 'use strict';
 
-var raf = require('raf');
-var bind = require('bind');
-var domify = require('domify');
-var template = require('./template.html');
-var autoscale = require('autoscale-canvas');
+var raf = require("component~raf@1.1.3");
+var bind = require("component~bind@0.0.1");
+var domify = require("component~domify@1.2.2");
+var template = require("skyline/template.html");
+var autoscale = require("component~autoscale-canvas@0.0.3");
 
 /**
- * Expose `RealtimeBarGraph`.
+ * Expose `Skyline`.
  */
 
-module.exports = RealtimeBarGraph;
+module.exports = Skyline;
 
 /**
- * Initialize a new `RealtimeBarGraph`.
+ * Initialize a new `Skyline`.
  *
  * @api public
  */
 
-function RealtimeBarGraph() {
+function Skyline() {
   this._barSpacing = 2;
   this._barWidth = 4;
   this._gutter = 40;
@@ -435,15 +295,15 @@ function RealtimeBarGraph() {
  * Set the bar spacing.
  *
  * ```js
- * realtimeBarGraph.barSpacing(3)
+ * skyline.barSpacing(3)
  * ```
  *
  * @param {Number} barSpacing
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.barSpacing = function(barSpacing){
+Skyline.prototype.barSpacing = function(barSpacing){
   this._barSpacing = barSpacing;
   return this;
 };
@@ -452,15 +312,15 @@ RealtimeBarGraph.prototype.barSpacing = function(barSpacing){
  * Set the bar width.
  *
  * ```js
- * realtimeBarGraph.barWidth(5)
+ * skyline.barWidth(5)
  * ```
  *
  * @param {Number} barWidth
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.barWidth = function(barWidth){
+Skyline.prototype.barWidth = function(barWidth){
   this._barWidth = barWidth;
   return this;
 };
@@ -469,15 +329,15 @@ RealtimeBarGraph.prototype.barWidth = function(barWidth){
  * Set the gutter.
  *
  * ```js
- * realtimeBarGraph.gutter(50)
+ * skyline.gutter(50)
  * ```
  *
  * @param {Number} gutter
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.gutter = function(gutter){
+Skyline.prototype.gutter = function(gutter){
   this._gutter = gutter;
   return this;
 };
@@ -486,15 +346,15 @@ RealtimeBarGraph.prototype.gutter = function(gutter){
  * Set the width.
  *
  * ```js
- * realtimeBarGraph.width(600)
+ * skyline.width(600)
  * ```
  *
  * @param {Number} width
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.width = function(width){
+Skyline.prototype.width = function(width){
   this._width = width;
   return this;
 };
@@ -503,15 +363,15 @@ RealtimeBarGraph.prototype.width = function(width){
  * Set the height.
  *
  * ```js
- * realtimeBarGraph.height(300)
+ * skyline.height(300)
  * ```
  *
  * @param {Number} height
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.height = function(height){
+Skyline.prototype.height = function(height){
   this._height = height;
   return this;
 };
@@ -520,15 +380,15 @@ RealtimeBarGraph.prototype.height = function(height){
  * Set the background bar colour.
  *
  * ```js
- * realtimeBarGraph.backgroundBarColour('#dedede')
+ * skyline.backgroundBarColour('#dedede')
  * ```
  *
  * @param {String} backgroundBarColour
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.backgroundBarColour = function(backgroundBarColour){
+Skyline.prototype.backgroundBarColour = function(backgroundBarColour){
   this._backgroundBarColour = backgroundBarColour;
   return this;
 };
@@ -537,15 +397,15 @@ RealtimeBarGraph.prototype.backgroundBarColour = function(backgroundBarColour){
  * Set the history bar colour.
  *
  * ```js
- * realtimeBarGraph.historyBarColour('#ababab')
+ * skyline.historyBarColour('#ababab')
  * ```
  *
  * @param {String} historyBarColour
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.historyBarColour = function(historyBarColour){
+Skyline.prototype.historyBarColour = function(historyBarColour){
   this._historyBarColour = historyBarColour;
   return this;
 };
@@ -554,15 +414,15 @@ RealtimeBarGraph.prototype.historyBarColour = function(historyBarColour){
  * Set the axes font.
  *
  * ```js
- * realtimeBarGraph.axesFont('14px sans-serif')
+ * skyline.axesFont('14px sans-serif')
  * ```
  *
  * @param {String} axesFont
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.axesFont = function(axesFont){
+Skyline.prototype.axesFont = function(axesFont){
   this._axesFont = axesFont;
   return this;
 };
@@ -571,15 +431,15 @@ RealtimeBarGraph.prototype.axesFont = function(axesFont){
  * Set the frame rate (fps).
  *
  * ```js
- * realtimeBarGraph.frameRate(30)
+ * skyline.frameRate(30)
  * ```
  *
  * @param {Number} frameRate
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.frameRate = function(frameRate){
+Skyline.prototype.frameRate = function(frameRate){
   this._frameRate = frameRate;
   return this;
 };
@@ -590,7 +450,7 @@ RealtimeBarGraph.prototype.frameRate = function(frameRate){
  * @api private
  */
 
- RealtimeBarGraph.prototype.createHistoryArray = function(){
+ Skyline.prototype.createHistoryArray = function(){
   this.history = [];
   var i = 0, j = this._width / (this._barSpacing + this._barWidth);
   for (; i < j; i++) this.history[i] = 0;
@@ -602,7 +462,7 @@ RealtimeBarGraph.prototype.frameRate = function(frameRate){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawBackground = function(){
+Skyline.prototype.drawBackground = function(){
   this.drawBars(this.backgroundBarCb);
 };
 
@@ -613,7 +473,7 @@ RealtimeBarGraph.prototype.drawBackground = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.backgroundBarCb = function(xPos){
+Skyline.prototype.backgroundBarCb = function(xPos){
   this.bgCtx.fillRect(xPos, this._gutter, this._barWidth, this._height - this._gutter * 2);
 };
 
@@ -623,8 +483,8 @@ RealtimeBarGraph.prototype.backgroundBarCb = function(xPos){
  * @api private
  */
 
-RealtimeBarGraph.prototype.initialiseBackgroundCanvas = function(){
-  var canvas = this.el.querySelector('.rtbg-background');
+Skyline.prototype.initialiseBackgroundCanvas = function(){
+  var canvas = this.el.querySelector('.skyline-background');
   canvas.width = this._width;
   canvas.height = this._height;
   autoscale(canvas);
@@ -638,8 +498,8 @@ RealtimeBarGraph.prototype.initialiseBackgroundCanvas = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.initialiseHistoryCanvas = function(){
-  var canvas = this.el.querySelector('.rtbg-history');
+Skyline.prototype.initialiseHistoryCanvas = function(){
+  var canvas = this.el.querySelector('.skyline-history');
   canvas.width = this._width;
   canvas.height = this._height;
   autoscale(canvas);
@@ -653,7 +513,7 @@ RealtimeBarGraph.prototype.initialiseHistoryCanvas = function(){
  * @api public
  */
 
-RealtimeBarGraph.prototype.start = function(){
+Skyline.prototype.start = function(){
   this.createHistoryArray();
   this.initialiseBackgroundCanvas();
   this.initialiseHistoryCanvas();
@@ -668,7 +528,7 @@ RealtimeBarGraph.prototype.start = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.animate = function(){
+Skyline.prototype.animate = function(){
   this.rafId = raf(this.animate);
   var now = Date.now();
   this.animateStart = this.animateStart || now;
@@ -691,7 +551,7 @@ RealtimeBarGraph.prototype.animate = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.processHistoryFrame = function(){
+Skyline.prototype.processHistoryFrame = function(){
   for (var i = 0, j = this.history.length - 1; i < j; i++) {
     this.history[i] = this.history[i + 1];
   }
@@ -706,7 +566,7 @@ RealtimeBarGraph.prototype.processHistoryFrame = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawHistory = function(){
+Skyline.prototype.drawHistory = function(){
   var maxHits = Math.max.apply(null, this.history);
   if (!this.maxAxesPoint || maxHits >= this.maxAxesPoint) this.drawAxes(maxHits);
   this.historyMultiplier = (this._height - this._gutter * 2) / this.maxAxesPoint;
@@ -722,7 +582,7 @@ RealtimeBarGraph.prototype.drawHistory = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.historyBarCb = function(xPos){
+Skyline.prototype.historyBarCb = function(xPos){
   var hits = this.history[this.historyStartIndex--] * this.historyMultiplier;
   this.historyCtx.fillRect(xPos, this._height - this._gutter - hits, this._barWidth, hits);
 };
@@ -734,7 +594,7 @@ RealtimeBarGraph.prototype.historyBarCb = function(xPos){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawBars = function(cb){
+Skyline.prototype.drawBars = function(cb){
   var xPos = this._width - this._gutter - this._barWidth, start = this._gutter;
   for (; xPos >= start; xPos -= (this._barSpacing + this._barWidth)) cb(xPos);
 };
@@ -746,7 +606,7 @@ RealtimeBarGraph.prototype.drawBars = function(cb){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawAxes = function(maxHits){
+Skyline.prototype.drawAxes = function(maxHits){
   maxHits = maxHits || 1;
   var points = [0, maxHits, maxHits * 2, maxHits * 3, maxHits * 4];
   this.maxAxesPoint = points[4];
@@ -762,7 +622,7 @@ RealtimeBarGraph.prototype.drawAxes = function(maxHits){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawLeftYAxis = function(points){
+Skyline.prototype.drawLeftYAxis = function(points){
   var xPos = this._gutter - 5;
   var drawingAreaHeight = this._height - this._gutter * 2;
   this.bgCtx.clearRect(0, 0, xPos, this._height);
@@ -782,7 +642,7 @@ RealtimeBarGraph.prototype.drawLeftYAxis = function(points){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawRightYAxis = function(points){
+Skyline.prototype.drawRightYAxis = function(points){
   var xPos = this._width - this._gutter + 5;
   var drawingAreaHeight = this._height - this._gutter * 2;
   this.bgCtx.clearRect(xPos, 0, this._width - xPos, this._height);
@@ -801,45 +661,18 @@ RealtimeBarGraph.prototype.drawRightYAxis = function(points){
  * @api public
  */
 
-RealtimeBarGraph.prototype.addHit = function(){
+Skyline.prototype.addHit = function(){
   this.buffer++;
 };
 });
 
+require.define("skyline/template.html", "<div class=\"skyline\">\n  <canvas class=\"skyline-background\"></canvas>\n  <canvas class=\"skyline-history\"></canvas>\n</div>");
 
-
-
-
-
-
-
-
-
-
-
-require.register("realtime-bar-graph/template.html", function(exports, require, module){
-module.exports = '<div class="rtbg">\n  <canvas class="rtbg-background"></canvas>\n  <canvas class="rtbg-history"></canvas>\n</div>';
-});
-require.alias("component-raf/index.js", "realtime-bar-graph/deps/raf/index.js");
-require.alias("component-raf/index.js", "raf/index.js");
-
-require.alias("kenany-isinteger/index.js", "realtime-bar-graph/deps/isInteger/index.js");
-require.alias("kenany-isinteger/index.js", "isInteger/index.js");
-
-require.alias("component-bind/index.js", "realtime-bar-graph/deps/bind/index.js");
-require.alias("component-bind/index.js", "bind/index.js");
-
-
-require.alias("component-domify/index.js", "realtime-bar-graph/deps/domify/index.js");
-require.alias("component-domify/index.js", "domify/index.js");
-
-require.alias("component-autoscale-canvas/index.js", "realtime-bar-graph/deps/autoscale-canvas/index.js");
-require.alias("component-autoscale-canvas/index.js", "autoscale-canvas/index.js");
-
-require.alias("realtime-bar-graph/index.js", "realtime-bar-graph/index.js");if (typeof exports == "object") {
-  module.exports = require("realtime-bar-graph");
+if (typeof exports == "object") {
+  module.exports = require("skyline");
 } else if (typeof define == "function" && define.amd) {
-  define([], function(){ return require("realtime-bar-graph"); });
+  define([], function(){ return require("skyline"); });
 } else {
-  this["RealtimeBarGraph"] = require("realtime-bar-graph");
-}})();
+  this["Skyline"] = require("skyline");
+}
+})()

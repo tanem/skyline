@@ -2,10 +2,10 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Realtime Bar Graph Demo</title>
+  <title>Skyline Demo</title>
   <link href="../build/build.css" rel="stylesheet" type="text/css" media="all">
   <style>
-  .rtbg {
+  .skyline {
     bottom: 0;
     left: 0;
     margin: auto;
@@ -22,14 +22,14 @@
       
     var raf = require('raf');
     var random = require('random');
-    var RealtimeBarGraph = require('realtime-bar-graph');
+    var Skyline = require('skyline');
 
-    var realtimeBarGraph = new RealtimeBarGraph();
-    document.body.appendChild(realtimeBarGraph.el);
-    realtimeBarGraph.start();
+    var skyline = new Skyline();
+    document.body.appendChild(skyline.el);
+    skyline.start();
 
     function addHits(){
-      realtimeBarGraph.addHit();
+      skyline.addHit();
       window.setTimeout(function(){
         raf(addHits);
       }, random(0, 100, true));

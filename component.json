@@ -1,8 +1,8 @@
 {
-  "name": "realtime-bar-graph",
-  "repository": "tanem/realtime-bar-graph",
+  "name": "skyline",
+  "repository": "tanem/skyline",
   "description": "A bar graph that displays information in real time using canvas.",
-  "version": "2.0.25",
+  "version": "3.0.0",
   "keywords": [
     "bar",
     "graph",
@@ -33,7 +33,7 @@
     "template.html"
   ],
   "styles": [
-    "realtime-bar-graph.css"
+    "skyline.css"
   ],
   "demo": "http://codepen.io/tanem/pen/zkanq"
 }

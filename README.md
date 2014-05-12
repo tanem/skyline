@@ -1,8 +1,8 @@
-# realtime-bar-graph
+# skyline
 
 A bar graph that displays information in real time using canvas.
 
-[![browser support](https://ci.testling.com/tanem/realtime-bar-graph.png)](https://ci.testling.com/tanem/realtime-bar-graph)
+[![browser support](https://ci.testling.com/tanem/skyline.png)](https://ci.testling.com/tanem/skyline)
 
 ## Live Demo
 
@@ -13,7 +13,7 @@ A bar graph that displays information in real time using canvas.
 Ensure [component(1)](http://component.io) is installed, then:
 
 ```sh
-$ component install tanem/realtime-bar-graph
+$ component install tanem/skyline
 ```
 
 ## Stand-alone
@@ -24,7 +24,7 @@ This library may be used stand-alone without the component tool. To build the st
 $ make standalone
 ```
 
-Then add ./standalone/realtime-bar-graph.css and ./standalone/realtime-bar-graph.js to your application and reference the `RealtimeBarGraph` global.
+Then add ./standalone/skyline.css and ./standalone/skyline.js to your application and reference the `Skyline` global.
 
 ## Unit Tests
 
@@ -36,96 +36,96 @@ $ make test
 
 ## API
 
-### new RealtimeBarGraph
+### new Skyline
 
-Initialize a new `RealtimeBarGraph`.
+Initialize a new `Skyline`.
 
-### RealtimeBarGraph#barSpacing(barSpacing:Number)
+### Skyline#barSpacing(barSpacing:Number)
 
 Set the bar spacing.
 
 ```js
-realtimeBarGraph.barSpacing(3)
+skyline.barSpacing(3)
 ```
 
-### RealtimeBarGraph#barWidth(barWidth:Number)
+### Skyline#barWidth(barWidth:Number)
 
 Set the bar width.
 
 ```js
-realtimeBarGraph.barSpacing(5)
+skyline.barSpacing(5)
 ```
 
-### RealtimeBarGraph#gutter(gutter:Number)
+### Skyline#gutter(gutter:Number)
 
 Set the gutter.
 
 ```js
-realtimeBarGraph.gutter(50)
+skyline.gutter(50)
 ```
 
-### RealtimeBarGraph#width(width:Number)
+### Skyline#width(width:Number)
 
 Set the width.
 
 ```js
-realtimeBarGraph.width(600)
+skyline.width(600)
 ```
 
-### RealtimeBarGraph#height(height:Number)
+### Skyline#height(height:Number)
 
 Set the height.
 
 ```js
-realtimeBarGraph.height(300)
+skyline.height(300)
 ```
 
-### RealtimeBarGraph#backgroundBarColour(backgroundBarColour:String)
+### Skyline#backgroundBarColour(backgroundBarColour:String)
 
 Set the background bar colour.
 
 ```js
-realtimeBarGraph.backgroundBarColour('#dedede')
+skyline.backgroundBarColour('#dedede')
 ```
 
-### RealtimeBarGraph#historyBarColour(historyBarColour:String)
+### Skyline#historyBarColour(historyBarColour:String)
 
 Set the history bar colour.
 
 ```js
-realtimeBarGraph.historyBarColour('#ababab')
+skyline.historyBarColour('#ababab')
 ```
 
-### RealtimeBarGraph#axesFont(axesFont:String)
+### Skyline#axesFont(axesFont:String)
 
 Set the axes font.
 
 ```js
-realtimeBarGraph.axesFont('14px sans-serif')
+skyline.axesFont('14px sans-serif')
 ```
 
-### RealtimeBarGraph#frameRate(frameRate:Number)
+### Skyline#frameRate(frameRate:Number)
 
 Set the frame rate (fps).
 
 ```js
-realtimeBarGraph.frameRate(30)
+skyline.frameRate(30)
 ```
 
-### RealtimeBarGraph#addHit
+### Skyline#addHit
 
 Add a hit to the graph.
 
 ```js
-realtimeBarGraph.addHit()
+skyline.addHit()
 ```
 
-### RealtimeBarGraph#start
+### Skyline#start
 
 Start the graph animation.
 
 ```js
-realtimeBarGraph.start()
+skyline.start()
 ```
 
 ## License

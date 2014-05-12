@@ -7,18 +7,18 @@ var template = require('./template.html');
 var autoscale = require('autoscale-canvas');
 
 /**
- * Expose `RealtimeBarGraph`.
+ * Expose `Skyline`.
  */
 
-module.exports = RealtimeBarGraph;
+module.exports = Skyline;
 
 /**
- * Initialize a new `RealtimeBarGraph`.
+ * Initialize a new `Skyline`.
  *
  * @api public
  */
 
-function RealtimeBarGraph() {
+function Skyline() {
   this._barSpacing = 2;
   this._barWidth = 4;
   this._gutter = 40;
@@ -39,15 +39,15 @@ function RealtimeBarGraph() {
  * Set the bar spacing.
  *
  * ```js
- * realtimeBarGraph.barSpacing(3)
+ * skyline.barSpacing(3)
  * ```
  *
  * @param {Number} barSpacing
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.barSpacing = function(barSpacing){
+Skyline.prototype.barSpacing = function(barSpacing){
   this._barSpacing = barSpacing;
   return this;
 };
@@ -56,15 +56,15 @@ RealtimeBarGraph.prototype.barSpacing = function(barSpacing){
  * Set the bar width.
  *
  * ```js
- * realtimeBarGraph.barWidth(5)
+ * skyline.barWidth(5)
  * ```
  *
  * @param {Number} barWidth
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.barWidth = function(barWidth){
+Skyline.prototype.barWidth = function(barWidth){
   this._barWidth = barWidth;
   return this;
 };
@@ -73,15 +73,15 @@ RealtimeBarGraph.prototype.barWidth = function(barWidth){
  * Set the gutter.
  *
  * ```js
- * realtimeBarGraph.gutter(50)
+ * skyline.gutter(50)
  * ```
  *
  * @param {Number} gutter
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.gutter = function(gutter){
+Skyline.prototype.gutter = function(gutter){
   this._gutter = gutter;
   return this;
 };
@@ -90,15 +90,15 @@ RealtimeBarGraph.prototype.gutter = function(gutter){
  * Set the width.
  *
  * ```js
- * realtimeBarGraph.width(600)
+ * skyline.width(600)
  * ```
  *
  * @param {Number} width
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.width = function(width){
+Skyline.prototype.width = function(width){
   this._width = width;
   return this;
 };
@@ -107,15 +107,15 @@ RealtimeBarGraph.prototype.width = function(width){
  * Set the height.
  *
  * ```js
- * realtimeBarGraph.height(300)
+ * skyline.height(300)
  * ```
  *
  * @param {Number} height
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.height = function(height){
+Skyline.prototype.height = function(height){
   this._height = height;
   return this;
 };
@@ -124,15 +124,15 @@ RealtimeBarGraph.prototype.height = function(height){
  * Set the background bar colour.
  *
  * ```js
- * realtimeBarGraph.backgroundBarColour('#dedede')
+ * skyline.backgroundBarColour('#dedede')
  * ```
  *
  * @param {String} backgroundBarColour
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.backgroundBarColour = function(backgroundBarColour){
+Skyline.prototype.backgroundBarColour = function(backgroundBarColour){
   this._backgroundBarColour = backgroundBarColour;
   return this;
 };
@@ -141,15 +141,15 @@ RealtimeBarGraph.prototype.backgroundBarColour = function(backgroundBarColour){
  * Set the history bar colour.
  *
  * ```js
- * realtimeBarGraph.historyBarColour('#ababab')
+ * skyline.historyBarColour('#ababab')
  * ```
  *
  * @param {String} historyBarColour
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.historyBarColour = function(historyBarColour){
+Skyline.prototype.historyBarColour = function(historyBarColour){
   this._historyBarColour = historyBarColour;
   return this;
 };
@@ -158,15 +158,15 @@ RealtimeBarGraph.prototype.historyBarColour = function(historyBarColour){
  * Set the axes font.
  *
  * ```js
- * realtimeBarGraph.axesFont('14px sans-serif')
+ * skyline.axesFont('14px sans-serif')
  * ```
  *
  * @param {String} axesFont
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.axesFont = function(axesFont){
+Skyline.prototype.axesFont = function(axesFont){
   this._axesFont = axesFont;
   return this;
 };
@@ -175,15 +175,15 @@ RealtimeBarGraph.prototype.axesFont = function(axesFont){
  * Set the frame rate (fps).
  *
  * ```js
- * realtimeBarGraph.frameRate(30)
+ * skyline.frameRate(30)
  * ```
  *
  * @param {Number} frameRate
- * @return {RealtimeBarGraph} self
+ * @return {Skyline} self
  * @api public
  */
 
-RealtimeBarGraph.prototype.frameRate = function(frameRate){
+Skyline.prototype.frameRate = function(frameRate){
   this._frameRate = frameRate;
   return this;
 };
@@ -194,7 +194,7 @@ RealtimeBarGraph.prototype.frameRate = function(frameRate){
  * @api private
  */
 
- RealtimeBarGraph.prototype.createHistoryArray = function(){
+ Skyline.prototype.createHistoryArray = function(){
   this.history = [];
   var i = 0, j = this._width / (this._barSpacing + this._barWidth);
   for (; i < j; i++) this.history[i] = 0;
@@ -206,7 +206,7 @@ RealtimeBarGraph.prototype.frameRate = function(frameRate){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawBackground = function(){
+Skyline.prototype.drawBackground = function(){
   this.drawBars(this.backgroundBarCb);
 };
 
@@ -217,7 +217,7 @@ RealtimeBarGraph.prototype.drawBackground = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.backgroundBarCb = function(xPos){
+Skyline.prototype.backgroundBarCb = function(xPos){
   this.bgCtx.fillRect(xPos, this._gutter, this._barWidth, this._height - this._gutter * 2);
 };
 
@@ -227,8 +227,8 @@ RealtimeBarGraph.prototype.backgroundBarCb = function(xPos){
  * @api private
  */
 
-RealtimeBarGraph.prototype.initialiseBackgroundCanvas = function(){
-  var canvas = this.el.querySelector('.rtbg-background');
+Skyline.prototype.initialiseBackgroundCanvas = function(){
+  var canvas = this.el.querySelector('.skyline-background');
   canvas.width = this._width;
   canvas.height = this._height;
   autoscale(canvas);
@@ -242,8 +242,8 @@ RealtimeBarGraph.prototype.initialiseBackgroundCanvas = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.initialiseHistoryCanvas = function(){
-  var canvas = this.el.querySelector('.rtbg-history');
+Skyline.prototype.initialiseHistoryCanvas = function(){
+  var canvas = this.el.querySelector('.skyline-history');
   canvas.width = this._width;
   canvas.height = this._height;
   autoscale(canvas);
@@ -257,7 +257,7 @@ RealtimeBarGraph.prototype.initialiseHistoryCanvas = function(){
  * @api public
  */
 
-RealtimeBarGraph.prototype.start = function(){
+Skyline.prototype.start = function(){
   this.createHistoryArray();
   this.initialiseBackgroundCanvas();
   this.initialiseHistoryCanvas();
@@ -272,7 +272,7 @@ RealtimeBarGraph.prototype.start = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.animate = function(){
+Skyline.prototype.animate = function(){
   this.rafId = raf(this.animate);
   var now = Date.now();
   this.animateStart = this.animateStart || now;
@@ -295,7 +295,7 @@ RealtimeBarGraph.prototype.animate = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.processHistoryFrame = function(){
+Skyline.prototype.processHistoryFrame = function(){
   for (var i = 0, j = this.history.length - 1; i < j; i++) {
     this.history[i] = this.history[i + 1];
   }
@@ -310,7 +310,7 @@ RealtimeBarGraph.prototype.processHistoryFrame = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawHistory = function(){
+Skyline.prototype.drawHistory = function(){
   var maxHits = Math.max.apply(null, this.history);
   if (!this.maxAxesPoint || maxHits >= this.maxAxesPoint) this.drawAxes(maxHits);
   this.historyMultiplier = (this._height - this._gutter * 2) / this.maxAxesPoint;
@@ -326,7 +326,7 @@ RealtimeBarGraph.prototype.drawHistory = function(){
  * @api private
  */
 
-RealtimeBarGraph.prototype.historyBarCb = function(xPos){
+Skyline.prototype.historyBarCb = function(xPos){
   var hits = this.history[this.historyStartIndex--] * this.historyMultiplier;
   this.historyCtx.fillRect(xPos, this._height - this._gutter - hits, this._barWidth, hits);
 };
@@ -338,7 +338,7 @@ RealtimeBarGraph.prototype.historyBarCb = function(xPos){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawBars = function(cb){
+Skyline.prototype.drawBars = function(cb){
   var xPos = this._width - this._gutter - this._barWidth, start = this._gutter;
   for (; xPos >= start; xPos -= (this._barSpacing + this._barWidth)) cb(xPos);
 };
@@ -350,7 +350,7 @@ RealtimeBarGraph.prototype.drawBars = function(cb){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawAxes = function(maxHits){
+Skyline.prototype.drawAxes = function(maxHits){
   maxHits = maxHits || 1;
   var points = [0, maxHits, maxHits * 2, maxHits * 3, maxHits * 4];
   this.maxAxesPoint = points[4];
@@ -366,7 +366,7 @@ RealtimeBarGraph.prototype.drawAxes = function(maxHits){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawLeftYAxis = function(points){
+Skyline.prototype.drawLeftYAxis = function(points){
   var xPos = this._gutter - 5;
   var drawingAreaHeight = this._height - this._gutter * 2;
   this.bgCtx.clearRect(0, 0, xPos, this._height);
@@ -386,7 +386,7 @@ RealtimeBarGraph.prototype.drawLeftYAxis = function(points){
  * @api private
  */
 
-RealtimeBarGraph.prototype.drawRightYAxis = function(points){
+Skyline.prototype.drawRightYAxis = function(points){
   var xPos = this._width - this._gutter + 5;
   var drawingAreaHeight = this._height - this._gutter * 2;
   this.bgCtx.clearRect(xPos, 0, this._width - xPos, this._height);
@@ -405,6 +405,6 @@ RealtimeBarGraph.prototype.drawRightYAxis = function(points){
  * @api public
  */
 
-RealtimeBarGraph.prototype.addHit = function(){
+Skyline.prototype.addHit = function(){
   this.buffer++;
 };
