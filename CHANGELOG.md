@@ -1,3 +1,7 @@
+## v3.0.2 / 2014-10-02
+
+ * Generate CHANGELOG with mkclog
+
 ## v3.0.1 / 2014-07-07
 
  * Add license
