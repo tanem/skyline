@@ -1,6 +1,7 @@
 {
   "name": "skyline",
   "description": "A bar graph that displays information in real time using canvas.",
+  "homepage": "https://github.com/tanem/skyline",
   "repository" : {
     "type" : "git",
     "url" : "git://github.com/tanem/skyline.git"
