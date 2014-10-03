@@ -2,7 +2,7 @@
   "name": "skyline",
   "repository": "tanem/skyline",
   "description": "A bar graph that displays information in real time using canvas.",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "keywords": [
     "bar",
     "graph",

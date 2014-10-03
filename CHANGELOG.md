@@ -1,3 +1,7 @@
+## v3.0.3 / 2014-10-04
+
+ * ([2394a25](https://github.com/tanem/skyline/commit/2394a25bfd0cd586e8f6ec03deca13e812c43310)) Add commit links to CHANGELOG
+
 ## v3.0.2 / 2014-10-02
 
  * ([1562f46](https://github.com/tanem/skyline/commit/1562f46a4408f865bf29edaac57ae31e0f57febe)) Generate CHANGELOG with mkclog
