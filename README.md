@@ -12,7 +12,7 @@ A bar graph that displays information in real time using canvas.
 
 Ensure [component(1)](http://component.io) is installed, then:
 
-```sh
+```
 $ component install tanem/skyline
 ```
 
@@ -20,7 +20,7 @@ $ component install tanem/skyline
 
 This library may be used stand-alone without the component tool. To build the stand-alone files, ensure [UglifyJS2](https://github.com/mishoo/UglifyJS2) is installed, then: 
 
-```sh
+```
 $ make standalone
 ```
 
@@ -30,7 +30,7 @@ Then add ./standalone/skyline.css and ./standalone/skyline.js to your applicatio
 
 To run the unit tests, ensure [testling](https://github.com/substack/testling) is installed. Then:
 
-```sh
+```
 $ make test
 ```
 
@@ -127,27 +127,3 @@ Start the graph animation.
 ```js
 skyline.start()
 ```
-
-## License
-
-The MIT License (MIT)
-
-Copyright (c) 2014 Tane Morgan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
