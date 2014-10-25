@@ -1,3 +1,7 @@
+## v3.0.4 / 2014-10-25
+
+ * ([f266210](https://github.com/tanem/skyline/commit/f2662100b64b6f5d1d80e875dc3f2f8c769451d8)) Tidy up README
+
 ## v3.0.3 / 2014-10-04
 
  * ([2394a25](https://github.com/tanem/skyline/commit/2394a25bfd0cd586e8f6ec03deca13e812c43310)) Add commit links to CHANGELOG
