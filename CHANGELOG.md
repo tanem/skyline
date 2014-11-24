@@ -1,3 +1,7 @@
+## v3.0.5 / 2014-11-24
+
+ * ([5c0a8ec](https://github.com/tanem/skyline/commit/5c0a8ec125a68b6664866f1e811e35ca4865ec84)) Update README
+
 ## v3.0.4 / 2014-10-25
 
  * ([f266210](https://github.com/tanem/skyline/commit/f2662100b64b6f5d1d80e875dc3f2f8c769451d8)) Tidy up README
