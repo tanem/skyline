@@ -12,7 +12,7 @@ A bar graph that displays information in real time using canvas.
 
 Ensure [component(1)](http://component.io) is installed, then:
 
-```sh
+```
 $ component install tanem/skyline
 ```
 
@@ -20,7 +20,7 @@ $ component install tanem/skyline
 
 This library may be used stand-alone without the component tool. To build the stand-alone files, ensure [UglifyJS2](https://github.com/mishoo/UglifyJS2) is installed, then: 
 
-```sh
+```
 $ make standalone
 ```
 
@@ -30,7 +30,7 @@ Then add ./standalone/skyline.css and ./standalone/skyline.js to your applicatio
 
 To run the unit tests, ensure [testling](https://github.com/substack/testling) is installed. Then:
 
-```sh
+```
 $ make test
 ```
 
