@@ -1,3 +1,7 @@
+## v3.0.6 / 2014-12-02
+
+ * ([eb927f5](https://github.com/tanem/skyline/commit/eb927f580f923791c13e074923208a4e43f2d915)) Update README
+
 ## v3.0.5 / 2014-11-24
 
  * ([5c0a8ec](https://github.com/tanem/skyline/commit/5c0a8ec125a68b6664866f1e811e35ca4865ec84)) Update README
