@@ -1,3 +1,7 @@
+## v3.0.7 / 2015-03-10
+
+ * ([ce49b19](https://github.com/tanem/skyline/commit/ce49b19e00069dc4e1212bfd509d3b85a7619f81)) Update LICENSE
+
 ## v3.0.6 / 2014-12-02
 
  * ([eb927f5](https://github.com/tanem/skyline/commit/eb927f580f923791c13e074923208a4e43f2d915)) Update README
