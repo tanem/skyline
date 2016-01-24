@@ -1,3 +1,7 @@
+## 3.0.8 / 2016-01-25
+
+ * ([25463c0](https://github.com/tanem/skyline/commit/25463c0d1fb248e8defa56eca10660b7427ef9ad)) Update license (closes [#1](https://github.com/tanem/skyline/issues/1))
+
 ## v3.0.7 / 2015-03-10
 
  * ([ce49b19](https://github.com/tanem/skyline/commit/ce49b19e00069dc4e1212bfd509d3b85a7619f81)) Update LICENSE
