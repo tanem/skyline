@@ -1,5 +1,7 @@
 # skyline
 
+> **Unmaintained.** This project is no longer maintained and the repository is archived.
+
 A bar graph that displays information in real time using canvas.
 
 [![browser support](https://ci.testling.com/tanem/skyline.png)](https://ci.testling.com/tanem/skyline)
